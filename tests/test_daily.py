@@ -70,6 +70,39 @@ def test_upload_blocked_skips_google_import(tmp_path, monkeypatch):
     assert daily.upload_latest() is False
 
 
+def test_invalid_youtube_oauth_fails_cleanly_without_marking_video_uploaded(
+    tmp_path, monkeypatch
+):
+    import studio.publishing as publishing
+    from studio.db import get_video
+    from studio.publishing import YouTubeAuthError
+
+    job, video = _built_video(tmp_path)
+    monkeypatch.setattr(
+        qa,
+        "inspect_video",
+        lambda *a, **k: qa.QAReport(
+            path=video,
+            checks=[qa.Check("audio/video", True, "ok")],
+            duration=12.0,
+            mean_volume_db=-18.0,
+        ),
+    )
+    monkeypatch.setattr(
+        publishing,
+        "upload",
+        lambda *a, **k: (_ for _ in ()).throw(
+            YouTubeAuthError("replace YT_REFRESH_TOKEN; no video was uploaded")
+        ),
+    )
+    notifications = []
+    monkeypatch.setattr(daily, "send", lambda message: notifications.append(message))
+
+    assert daily.upload_latest() is False
+    assert get_video(job)["youtube_id"] is None
+    assert any("replace YT_REFRESH_TOKEN" in message for message in notifications)
+
+
 def test_missing_file_is_recorded(tmp_path):
     job = save_video("gone", "shorts", "hindi", "finance", {})
     update_video(job, video_path=str(tmp_path / "missing.mp4"))

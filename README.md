@@ -388,6 +388,24 @@ are the production builders. Browser-only instructions:
    `PUBLISH_AT_IST` empty to publish immediately at `PRIVACY`.
 5. Uploads are flagged `containsSyntheticMedia` — keep that honest.
 
+### Fixing `invalid_grant` during upload
+
+`invalid_grant` is returned by Google's token endpoint before YouTube receives a
+video. The refresh token is revoked/expired, or it does not match the configured
+OAuth client; retrying the same token cannot repair it. Re-authorise the same
+YouTube channel with the same OAuth client and the
+`https://www.googleapis.com/auth/youtube` scope, then replace the repository's
+**Actions secret** `YT_REFRESH_TOKEN` under **Settings → Secrets and variables
+→ Actions**. If the OAuth client was rotated, update `YT_CLIENT_ID` and
+`YT_CLIENT_SECRET` to the matching pair as well. For an External OAuth consent
+screen left in **Testing**, Google refresh tokens expire after 7 days; publish
+the consent screen (or expect to re-authorise and rotate the secret).
+
+The failed upload is not marked as uploaded: OAuth refresh happens before the
+YouTube upload request. After updating the secret, rerun the failed
+`make-shorts`/`make-longform` run's **Upload to YouTube** step (or dispatch
+`run_daily.py --upload-latest` again); the already-built video remains queued.
+
 ---
 
 ## 11. Production checklist

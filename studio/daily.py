@@ -144,7 +144,13 @@ def _build_fallback(fmt: str, existing: list[dict[str, Any]], **kwargs: Any) -> 
 # --------------------------------------------------------------------------- #
 def upload_latest() -> bool:
     """Upload the newest built video that has no YouTube id yet."""
-    from studio.publishing import add_to_playlist, post_comment, upload, wait_processed
+    from studio.publishing import (
+        YouTubeAuthError,
+        add_to_playlist,
+        post_comment,
+        upload,
+        wait_processed,
+    )
 
     for row in pending_upload():
         video_path = Path(row.get("video_path") or "")
@@ -204,6 +210,12 @@ def upload_latest() -> bool:
             send(f"✅ Uploaded: {title}\n{link}\nTip: pin your comment in Studio.")
             print(f"Uploaded: {link}")
             return True
+        except YouTubeAuthError as exc:
+            # A revoked/expired refresh token is not transient. Return a clear
+            # failed job for Actions/alerts; never retry the same token or upload.
+            log.error("YouTube authentication failed: %s", exc)
+            send(f"❌ YouTube authentication failed: {str(exc)[:500]}")
+            return False
         except Exception as exc:  # noqa: BLE001
             send(f"❌ Upload failed: {str(exc)[:200]}")
             raise

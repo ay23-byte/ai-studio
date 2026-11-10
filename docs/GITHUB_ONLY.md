@@ -70,6 +70,15 @@ Secrets (never printed):
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | failures + watchdog | alerts |
 | `CHATTERBOX_API_TOKEN` | live job | remote GPU voice |
 
+If an upload reports Google OAuth `invalid_grant`, the stored refresh token is
+revoked/expired or mismatched with the OAuth client. Re-authorise the same
+YouTube account with the same client and YouTube scope, then replace the
+`YT_REFRESH_TOKEN` Actions secret (and update the matching client ID/secret if
+those were rotated). Google expires refresh tokens after 7 days when an External
+OAuth consent screen remains in Testing; publish the consent screen to avoid
+that testing-mode expiry. The upload is rejected before a video is sent, and
+remains queued for retry after the secret is corrected. See [Publishing](../README.md#fixing-invalid_grant-during-upload).
+
 Variables (visible, handy for switching behaviour):
 
 | Name | Example | Purpose |
