@@ -5,3 +5,6 @@
 # `chatterbox-tts` pulls in torch; model weights (~2 GB) download on first use.
 -r requirements.txt
 chatterbox-tts>=0.1.2
+
+# Latest source (V3 multilingual / turbo / nano) instead of the PyPI release:
+# git+https://github.com/resemble-ai/chatterbox.git
