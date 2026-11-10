@@ -13,13 +13,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import wave
 from collections.abc import Callable, Sequence
 from dataclasses import replace
 from pathlib import Path
 
+from studio.artifacts import atomic_path
 from studio.logs import get_logger
 from studio.media import ffmpeg
+from studio.resilience import RetryExhausted, retry_call
 from studio.voice.engines import get_engine
 from studio.voice.engines.base import TTSEngine
 from studio.voice.humanize import build_utterances_for_chunks
@@ -150,6 +153,7 @@ def synthesize(
     engine: str | TTSEngine | None = None,
     profile: str | PacingProfile | None = None,
     reference: str | Path | None = None,
+    device: str | None = None,
     cache: bool = True,
     on_progress: ProgressFn | None = None,
 ) -> VoiceTrack:
@@ -166,7 +170,12 @@ def synthesize(
 
     pacing = get_profile(profile)
     language = language_code(language)
-    engine_obj: TTSEngine = engine if isinstance(engine, TTSEngine) else get_engine(engine)
+    if isinstance(engine, TTSEngine):
+        engine_obj = engine
+    elif device:
+        engine_obj = get_engine(engine, device=device)
+    else:
+        engine_obj = get_engine(engine)
     if not engine_obj.supports(language):
         raise ValueError(
             f"Engine {engine_obj.name!r} cannot speak language {language!r}. "
@@ -213,16 +222,37 @@ def synthesize(
             cfg_weight=utterance.cfg_weight if utterance.cfg_weight is not None
             else pacing.cfg_weight,
         )
-        try:
-            engine_obj.synth(
-                utterance.text, raw,
-                language=language, profile=per_utterance,
+        attempts = int(os.getenv("VOICE_SYNTH_ATTEMPTS", "3") or 3)
+
+        def _synth_once(
+            text: str = utterance.text,
+            destination: Path = raw,
+            voice: PacingProfile = per_utterance,
+        ) -> Path:
+            return engine_obj.synth(
+                text, destination, language=language, profile=voice,
                 reference=Path(reference) if reference else None,
             )
-        except Exception as exc:  # noqa: BLE001
+
+        def _drop_partial(
+            _attempt: int, _error: BaseException, _delay: float,
+            destination: Path = raw,
+        ) -> None:
+            destination.unlink(missing_ok=True)
+
+        try:
+            retry_call(
+                _synth_once,
+                attempts=attempts,
+                base_delay=float(os.getenv("VOICE_RETRY_DELAY", "2") or 2),
+                max_delay=30,
+                label=f"{engine_obj.name} sentence {index + 1}/{len(utterances)}",
+                on_retry=_drop_partial,
+            )
+        except RetryExhausted as exc:
             raise RuntimeError(
                 f"Voice synthesis failed on sentence {index + 1}/{len(utterances)} "
-                f"({engine_obj.name}): {exc}"
+                f"({engine_obj.name}) after {attempts} attempts: {exc.last_error}"
             ) from exc
 
         # The silent engine emits pure silence: trimming would erase it.
@@ -241,15 +271,16 @@ def synthesize(
         manifest_path.write_text(json.dumps(manifest, indent=0), encoding="utf-8")
 
     final_path = voice_dir / "voice.wav"
-    total, breath_times = _mix_track(
-        segment_paths,
-        durations,
-        [u.pause_after for u in utterances],
-        [u.breath_after for u in utterances],
-        lead_in=pacing.lead_in,
-        breath_dir=voice_dir,
-        out=final_path,
-    )
+    with atomic_path(final_path) as temp_audio:
+        total, breath_times = _mix_track(
+            segment_paths,
+            durations,
+            [u.pause_after for u in utterances],
+            [u.breath_after for u in utterances],
+            lead_in=pacing.lead_in,
+            breath_dir=voice_dir,
+            out=temp_audio,
+        )
 
     timings: list[Timing] = []
     cursor = pacing.lead_in
@@ -373,6 +404,7 @@ def preview(
     engine: str | TTSEngine | None = None,
     profile: str | PacingProfile | None = None,
     reference: str | Path | None = None,
+    device: str | None = None,
 ) -> VoiceTrack:
     """Synthesize a single passage to an explicit file (used by the CLI)."""
     out_path = Path(out_path)
@@ -386,6 +418,7 @@ def preview(
         engine=engine,
         profile=profile,
         reference=reference,
+        device=device,
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_bytes(track.path.read_bytes())

@@ -62,9 +62,27 @@ def available_engines() -> list[dict[str, Any]]:
     ]
 
 
+_ENGINE_OPTIONS: dict[str, set[str]] = {
+    "chatterbox": {
+        "model", "device", "t3_model", "ckpt_dir", "reference",
+        "temperature", "top_p", "min_p", "repetition_penalty",
+    },
+    "chatterbox-http": {"base_url", "token", "timeout"},
+    "edge": {"voice_hindi", "voice_english", "voice_female", "gender"},
+    "silent": {"sample_rate"},
+}
+
+
 def build_engine(name: str, **options: Any) -> TTSEngine:
-    """Instantiate an engine by name (no availability check)."""
+    """Instantiate an engine by name (no availability check).
+
+    Unknown kwargs are dropped per engine so shared options such as
+    ``device`` can be passed from the CLI without breaking every backend.
+    """
     name = name.strip().lower()
+    allowed = _ENGINE_OPTIONS.get(name, set())
+    options = {key: value for key, value in options.items()
+               if key in allowed and value is not None}
     if name == "chatterbox":
         from studio.voice.engines.chatterbox import ChatterboxEngine
 

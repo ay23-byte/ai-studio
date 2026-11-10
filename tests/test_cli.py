@@ -45,6 +45,36 @@ def test_doctor_reports_engines(capsys):
     assert "ffmpeg" in output
 
 
+def test_doctor_reports_hardware(capsys):
+    assert main(["doctor"]) == 0
+    output = capsys.readouterr().out
+    assert "hardware" in output
+    assert "cpu" in output
+    assert "device=" in output
+
+
+def test_qa_allow_silence_flag():
+    args = build_parser().parse_args(["qa", "video.mp4", "--allow-silence"])
+    assert args.allow_silence is True
+    assert build_parser().parse_args(["qa", "video.mp4"]).allow_silence is False
+
+
+def test_device_flag_is_plumbed():
+    args = build_parser().parse_args(["shorts", "x", "--device", "cpu"])
+    assert args.device == "cpu"
+    args = build_parser().parse_args(["long", "x", "--device", "cuda"])
+    assert args.device == "cuda"
+    assert build_parser().parse_args(["voice", "hi"]).device is None
+
+
+@requires_ffmpeg
+def test_bench_reports_engine_speed(temp_config, capsys):
+    assert main(["bench", "--engine", "silent", "--profile", "fast"]) == 0
+    output = capsys.readouterr().out
+    assert "realtime x" in output
+    assert "est. Short" in output
+
+
 @requires_ffmpeg
 def test_voice_command_writes_sample(temp_config):
     out = temp_config / "sample.wav"

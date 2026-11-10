@@ -6,7 +6,8 @@ import os
 import random
 from pathlib import Path
 
-from studio import config
+from studio import config, qa
+from studio.artifacts import atomic_path, output_path
 from studio.db import update_video
 from studio.logs import get_logger
 from studio.media import thumbnails
@@ -73,6 +74,7 @@ def build_shorts(
     engine: str | None = None,
     profile: str | None = None,
     voice_reference: str | Path | None = None,
+    device: str | None = None,
 ) -> Path:
     """Render a Short and return the output path."""
     config.ensure_directories()
@@ -97,6 +99,7 @@ def build_shorts(
         engine=engine,
         profile=resolve_profile(profile),
         reference=voice_reference,
+        device=device,
     )
     log.info("shorts job #%s: %.1fs of narration", job_id, track.duration)
 
@@ -133,9 +136,10 @@ def build_shorts(
     spans = [track.span(f"scene{i}") or (0.0, track.duration) for i in range(len(scenes))]
     lens = [max(end - start, 0.8) for start, end in spans]
     cuts = [end for _, end in spans[:-1]]
-    out = config.OUTPUT_DIR / f"shorts_{job_id}.mp4"
-    render_shorts(media, lens, cuts, track.path, ass_path, track.duration, out,
-                  pick_music(), work_dir=build_dir)
+    out = output_path("shorts", job_id)
+    with atomic_path(out) as temp_out:
+        render_shorts(media, lens, cuts, track.path, ass_path, track.duration,
+                      temp_out, pick_music(), work_dir=build_dir)
 
     # 5. Thumbnail (best effort)
     thumb = None
@@ -150,10 +154,19 @@ def build_shorts(
     except Exception as exc:  # noqa: BLE001 - thumbnails are optional
         log.warning("thumbnail skipped: %s", exc)
 
+    report = qa.inspect_video(out, expected_seconds=track.duration, kind="shorts")
+    for check in report.checks:
+        if not check.ok:
+            log.warning("QA %s: %s (%s)", check.name, check.detail, "failed")
+    if not report.ok:
+        log.warning("QA gate found %d issue(s); upload will be blocked\n%s",
+                    len(report.failures), report.summary())
+
     update_video(
         job_id,
         video_path=str(out),
         thumb_path=str(thumb) if thumb else None,
+        notes=None if report.ok else report.summary(),
         status="done",
     )
     log.info("shorts job #%s done → %s", job_id, out)

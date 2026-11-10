@@ -8,9 +8,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 
 _CONFIGURED = False
 _FORMAT = "%(asctime)s %(levelname)-7s %(name)-24s %(message)s"
@@ -21,12 +23,30 @@ class _Formatter(logging.Formatter):
         return super().formatTime(record, "%H:%M:%S")
 
 
-def configure(verbose: bool = False) -> None:
+class _JsonFormatter(logging.Formatter):
+    """One JSON object per line, for log shippers and CI forensics."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {
+            "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "run_id": os.getenv("STUDIO_RUN_ID", ""),
+        }
+        if record.exc_info:
+            payload["exception"] = self.formatException(record.exc_info)
+        return json.dumps(payload, ensure_ascii=False)
+
+
+def configure(verbose: bool = False, json_logs: bool | None = None) -> None:
     global _CONFIGURED
     if _CONFIGURED:
         return
+    if json_logs is None:
+        json_logs = os.getenv("STUDIO_LOG_FORMAT", "").strip().lower() == "json"
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(_Formatter(_FORMAT))
+    handler.setFormatter(_JsonFormatter() if json_logs else _Formatter(_FORMAT))
     root = logging.getLogger("studio")
     root.setLevel(logging.DEBUG if verbose else logging.INFO)
     root.addHandler(handler)

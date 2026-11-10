@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from studio import config
+from studio import config, qa
+from studio.artifacts import atomic_path, output_path
 from studio.db import update_video
 from studio.logs import get_logger
 from studio.media import thumbnails
@@ -27,6 +28,7 @@ def build_longform(
     engine: str | None = None,
     profile: str | None = None,
     voice_reference: str | Path | None = None,
+    device: str | None = None,
 ) -> Path:
     """Render a long-form video and return the output path."""
     config.ensure_directories()
@@ -51,6 +53,7 @@ def build_longform(
         engine=engine,
         profile=profile or config.VOICE_PROFILE,
         reference=voice_reference,
+        device=device,
     )
     log.info("long-form job #%s: %.1fs of narration", job_id, track.duration)
 
@@ -89,9 +92,10 @@ def build_longform(
     )
 
     # 4. Render
-    out = config.OUTPUT_DIR / f"longform_{job_id}.mp4"
-    render_longform(sections, track.path, ass_path, track.duration, out,
-                    pick_music(), work_dir=build_dir)
+    out = output_path("longform", job_id)
+    with atomic_path(out) as temp_out:
+        render_longform(sections, track.path, ass_path, track.duration,
+                        temp_out, pick_music(), work_dir=build_dir)
 
     # 5. Thumbnail (best effort)
     thumb = None
@@ -106,10 +110,19 @@ def build_longform(
     except Exception as exc:  # noqa: BLE001
         log.warning("thumbnail skipped: %s", exc)
 
+    report = qa.inspect_video(out, expected_seconds=track.duration, kind="longform")
+    for check in report.checks:
+        if not check.ok:
+            log.warning("QA %s: %s", check.name, check.detail)
+    if not report.ok:
+        log.warning("QA gate found %d issue(s); upload will be blocked\n%s",
+                    len(report.failures), report.summary())
+
     update_video(
         job_id,
         video_path=str(out),
         thumb_path=str(thumb) if thumb else None,
+        notes=None if report.ok else report.summary(),
         status="done",
     )
     log.info("long-form job #%s done → %s", job_id, out)

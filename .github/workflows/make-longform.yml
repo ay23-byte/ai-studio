@@ -40,7 +40,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -60,9 +60,9 @@ jobs:
       CHANNEL_NAME: "Power Codex"
       PRIVACY: "private"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
         with:
           python-version: "3.12"
           cache: pip
@@ -70,14 +70,22 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-devanagari
+          sudo apt-get install -y ffmpeg fonts-noto-core
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt -c constraints.txt
 
       - name: Install local Chatterbox
         if: ${{ inputs.engine == 'chatterbox' }}
-        run: pip install -r requirements-voice.txt
+        run: pip install -r requirements-voice.txt -c constraints.txt
+
+      - name: Restore studio database
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25  # v5
+        with:
+          path: db/studio.sqlite
+          key: studio-db-${{ github.run_id }}
+          restore-keys: |
+            studio-db-
 
       - name: Build long-form video
         run: |
@@ -87,11 +95,11 @@ jobs:
             --engine "$VOICE_ENGINE" \
             --profile "$VOICE_PROFILE"
 
-      - name: Upload to YouTube
+      - name: Upload to YouTube (QA-gated)
         if: ${{ inputs.upload == true }}
         run: python run_daily.py --upload-latest
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5
         if: always()
         with:
           name: longform-output
@@ -101,13 +109,12 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - name: Save studio database
+        if: ${{ always() && hashFiles('db/studio.sqlite') != '' }}
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25  # v5
         with:
-          name: studio-db
           path: db/studio.sqlite
-          if-no-files-found: ignore
-          retention-days: 14
+          key: studio-db-${{ github.run_id }}
 
       - name: Alert on failure
         if: failure()

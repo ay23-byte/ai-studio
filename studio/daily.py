@@ -14,11 +14,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from studio import config
-from studio.db import pending_upload, save_video, update_video
+from studio import config, qa
+from studio.db import list_videos, pending_upload, save_video, update_video
 from studio.logs import configure, get_logger
 from studio.notify import send
 from studio.pipeline import build_longform, build_shorts
@@ -99,6 +101,7 @@ def build_topic(
     *,
     engine: str | None = None,
     profile: str | None = None,
+    device: str | None = None,
 ) -> Path:
     """Build one topic dict into a video, returning the output path."""
     if topic.get("scenes") or topic.get("sections"):
@@ -115,7 +118,7 @@ def build_topic(
     category = topic.get("category", "finance")
     vid = save_video(script.get("title", ""), fmt, language, category, script)
     builder = build_shorts if fmt == "shorts" else build_longform
-    return builder(script, vid, engine=engine, profile=profile)
+    return builder(script, vid, engine=engine, profile=profile, device=device)
 
 
 def _build_fallback(fmt: str, existing: list[dict[str, Any]], **kwargs: Any) -> Path | None:
@@ -162,6 +165,19 @@ def upload_latest() -> bool:
         if row.get("format") == "shorts":
             description += "\n\n#Shorts"
 
+        if os.getenv("SKIP_QA", "").strip().lower() not in {"1", "true", "yes"}:
+            report = qa.inspect_video(video_path)
+            if not report.ok:
+                log.error("QA gate blocked job #%s:\n%s", row["id"], report.summary())
+                update_video(row["id"], notes=report.summary())
+                send(
+                    f"❌ QA gate blocked upload for '{title}': "
+                    + ", ".join(check.name for check in report.failures)
+                )
+                return False
+            log.info("QA gate passed (%.1fs, %.1f dBFS)",
+                     report.duration, report.mean_volume_db or 0.0)
+
         log.info("uploading job #%s: %s", row["id"], title)
         try:
             youtube_id = upload(video_path, title, description, seo["tags"],
@@ -197,6 +213,41 @@ def upload_latest() -> bool:
 
 
 # --------------------------------------------------------------------------- #
+# watchdog
+# --------------------------------------------------------------------------- #
+def check_freshness(max_age_hours: float = 26.0) -> bool:
+    """Fail when the channel has not published within ``max_age_hours``."""
+    rows = list_videos(limit=100)
+    uploaded = [row for row in rows if row.get("youtube_id")]
+    if not uploaded:
+        message = "⚠️ Watchdog: no uploaded video found in the studio database."
+        send(message)
+        print(message)
+        return False
+
+    latest = max(uploaded, key=lambda row: row.get("created_at") or "")
+    stamp = latest.get("created_at") or ""
+    try:
+        when = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+    except (TypeError, ValueError):
+        message = f"⚠️ Watchdog: unreadable timestamp {stamp!r}"
+        send(message)
+        print(message)
+        return False
+
+    age_hours = (datetime.now(timezone.utc) - when).total_seconds() / 3600
+    ok = age_hours <= max_age_hours
+    message = (
+        f"{'✅' if ok else '⚠️'} Latest upload {age_hours:.1f}h ago "
+        f"(limit {max_age_hours:.0f}h): {latest.get('title')}"
+    )
+    print(message)
+    if not ok:
+        send(message)
+    return ok
+
+
+# --------------------------------------------------------------------------- #
 # entry point
 # --------------------------------------------------------------------------- #
 def main(argv: list[str] | None = None) -> int:
@@ -206,16 +257,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--engine", default=None,
                         choices=["auto", "chatterbox", "chatterbox-http", "edge", "silent"])
     parser.add_argument("--profile", default=None)
+    parser.add_argument("--device", default=None, choices=["cpu", "cuda", "mps", "xpu"])
+    parser.add_argument(
+        "--check-freshness", nargs="?", const=26.0, type=float, default=None,
+        metavar="HOURS", help="watchdog: fail when nothing was published recently",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
     configure(verbose=args.verbose)
     config.ensure_directories()
 
+    if args.check_freshness is not None:
+        return 0 if check_freshness(args.check_freshness) else 1
+
     if args.upload_latest:
         return 0 if upload_latest() else 1
 
-    voice = {"engine": args.engine, "profile": args.profile}
+    voice = {"engine": args.engine, "profile": args.profile, "device": args.device}
     topics = load_topics()
     topic = next_topic(topics, args.format)
 

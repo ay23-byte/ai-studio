@@ -1,0 +1,33 @@
+name: dependency-audit
+
+# Weekly check that the pinned set installs cleanly and has no known
+# vulnerabilities. Failure opens the door for a visible, low-noise alert.
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"   # Mondays 10:30 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install locked dependencies
+        run: pip install -r requirements.txt -c constraints.txt
+
+      - name: Install audit tooling
+        run: pip install pip-audit
+
+      - name: Audit
+        run: pip-audit --strict --requirement requirements.txt

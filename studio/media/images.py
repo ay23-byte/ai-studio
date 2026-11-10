@@ -18,6 +18,7 @@ import requests
 from studio import config
 from studio.logs import get_logger
 from studio.media import ffmpeg
+from studio.resilience import RetryExhausted, retry_call
 
 log = get_logger(__name__)
 
@@ -85,24 +86,33 @@ def _cloudflare(prompt: str, path: Path) -> bool:
     return False
 
 
+def _pollinations_once(prompt: str, path: Path) -> bool:
+    response = requests.get(
+        "https://image.pollinations.ai/prompt/" + urllib.parse.quote(prompt[:900]),
+        params={
+            "width": 768, "height": 1344, "model": "flux",
+            "nologo": "true", "seed": random.randint(1, 10**6),
+        },
+        timeout=150,
+    )
+    response.raise_for_status()
+    if "image" not in response.headers.get("content-type", "image"):
+        raise RuntimeError(f"unexpected content-type {response.headers.get('content-type')!r}")
+    path.write_bytes(response.content)
+    if not _valid_image(path):
+        raise RuntimeError("downloaded image failed validation")
+    return True
+
+
 def _pollinations(prompt: str, path: Path) -> bool:
     time.sleep(config.POLLINATIONS_GAP)
     try:
-        response = requests.get(
-            "https://image.pollinations.ai/prompt/" + urllib.parse.quote(prompt[:900]),
-            params={
-                "width": 768, "height": 1344, "model": "flux",
-                "nologo": "true", "seed": random.randint(1, 10**6),
-            },
-            timeout=150,
+        return retry_call(
+            lambda: _pollinations_once(prompt, path),
+            attempts=3, base_delay=4, max_delay=30, label="pollinations",
         )
-        response.raise_for_status()
-        if "image" not in response.headers.get("content-type", "image"):
-            return False
-        path.write_bytes(response.content)
-        return _valid_image(path)
-    except Exception as exc:  # noqa: BLE001
-        log.warning("Pollinations: %s", exc)
+    except RetryExhausted as exc:
+        log.warning("Pollinations: %s", exc.last_error)
         return False
 
 
@@ -165,16 +175,21 @@ def fetch_clip(keywords: list[str], path: str | Path, used: set) -> bool:
                     break
             if not url:
                 continue
-            try:
-                with requests.get(url, stream=True, timeout=120) as response:
+            def download(target: str = url, destination: Path = path) -> bool:
+                with requests.get(target, stream=True, timeout=120) as response:
                     response.raise_for_status()
-                    path.write_bytes(response.content)
-                if path.stat().st_size > 50_000:
+                    destination.write_bytes(response.content)
+                if destination.stat().st_size <= 50_000:
+                    raise RuntimeError("downloaded clip is too small")
+                return True
+
+            try:
+                if retry_call(download, attempts=3, base_delay=3, label="pixabay clip"):
                     used.add(hit.get("id"))
                     log.info("clip ok (pixabay '%s')", query)
                     return True
-            except Exception as exc:  # noqa: BLE001
-                log.warning("clip download: %s", exc)
+            except RetryExhausted as exc:
+                log.warning("clip download: %s", exc.last_error)
     return False
 
 
