@@ -227,7 +227,7 @@ def generate_seo(script: dict) -> dict:
     cat = script.get("category", "") or "education"
     tags = script.get("tags") or ["finance", "hinglish", "education"]
     titles = [
-        f"{title} | Power Codex",
+        f"{title} | Engineering Physics",
         f"{title} - Aasaan Hinglish mein",
         f"Kya aap jaante ho? {title}",
         f"{title} | {cat.title()} Explained",
@@ -241,7 +241,7 @@ def generate_seo(script: dict) -> dict:
         cursor += 120
     return {
         "titles": titles,
-        "tags": tags + [cat, "power codex", "hindi education"],
+        "tags": tags + [cat, "engineering physics", "hindi education"],
         "chapters": chapters,
         "pinned_comment": "कौन सा concept अगले video में समझाएँ? Comment में बताओ 👇",
         "hashtags": [f"#{tag.replace(' ', '')}" for tag in tags[:5]],

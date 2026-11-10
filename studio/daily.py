@@ -41,11 +41,11 @@ FALLBACK_TOPICS = [
 ]
 
 CATEGORY_PLAYLISTS = {
-    "finance": "Finance Explained | Power Codex",
-    "markets": "Share Market | Power Codex",
-    "money": "Paise ki Samajh | Power Codex",
-    "power": "पावर के नियम | Power Codex",
-    "human": "इंसानी व्यवहार | Power Codex",
+    "finance": "Finance Explained | Engineering Physics",
+    "markets": "Share Market | Engineering Physics",
+    "money": "Paise ki Samajh | Engineering Physics",
+    "power": "पावर के नियम | Engineering Physics",
+    "human": "इंसानी व्यवहार | Engineering Physics",
 }
 
 DISCLAIMER = (
