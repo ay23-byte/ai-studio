@@ -89,6 +89,17 @@ jobs:
         if: ${{ inputs.engine == 'chatterbox' }}
         run: pip install -r requirements-voice.txt -c constraints.txt
 
+      - name: Preflight voice engine
+        if: ${{ inputs.engine == 'edge' }}
+        env:
+          VOICE_HINDI: ${{ vars.VOICE_HINDI }}
+          VOICE_ENGLISH: ${{ vars.VOICE_ENGLISH }}
+        run: |
+          # Fail in seconds with the real reason instead of after a long script
+          # generation, and report which voice id was actually used.
+          python run.py voice "नमस्ते, यह आवाज़ की जाँच है।" \
+            --engine edge --profile natural -o build/voice_preflight.mp3
+
       - name: Restore studio database
         uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25  # v5
         with:

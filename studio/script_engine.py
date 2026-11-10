@@ -137,9 +137,9 @@ def _ask_gemini(prompt: str) -> str:
         try:
             return retry_call(
                 lambda m=model: _post(m, prompt),
-                attempts=4,
-                base_delay=5,
-                max_delay=60,
+                attempts=3,
+                base_delay=4,
+                max_delay=30,
                 give_up_on=(ModelUnavailableError,),
                 label=f"gemini[{model}]",
             )

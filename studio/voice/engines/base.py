@@ -12,6 +12,15 @@ class EngineUnavailable(RuntimeError):
     """Raised when an engine is requested but cannot run on this machine."""
 
 
+class VoiceUnavailable(EngineUnavailable):
+    """No voice could speak this language.
+
+    Distinct from :class:`EngineUnavailable` because retrying the same sentence
+    against the same dead voice can never succeed — the retry layer gives up
+    immediately and the build fails with a clear, actionable message.
+    """
+
+
 class TTSEngine(ABC):
     """Minimal interface: say one sentence, write one audio file.
 
