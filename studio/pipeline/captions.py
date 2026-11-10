@@ -154,7 +154,7 @@ def make_ass_shorts(
     cta: str = "",
     labels: Sequence[tuple[float, float, str]] = (),
     disclaimer: bool = False,
-    channel: str = "Power Codex",
+    channel: str = "Engineering Physics",
     tail: float = 0.6,
 ) -> Path:
     end_time = total + tail
@@ -218,7 +218,7 @@ def make_ass_longform(
     section_spans: dict[str, tuple[float, float]] | None = None,
     section_titles: dict[str, str] | None = None,
     disclaimer: bool = False,
-    channel: str = "Power Codex",
+    channel: str = "Engineering Physics",
     tail: float = 1.5,
 ) -> Path:
     end_time = total + tail

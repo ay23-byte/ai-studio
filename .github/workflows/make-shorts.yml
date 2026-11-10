@@ -66,7 +66,7 @@ jobs:
       CHATTERBOX_API_URL: ${{ secrets.CHATTERBOX_API_URL }}
       CHATTERBOX_API_TOKEN: ${{ secrets.CHATTERBOX_API_TOKEN }}
       CHATTERBOX_REF: ${{ vars.CHATTERBOX_REF }}
-      CHANNEL_NAME: "Power Codex"
+      CHANNEL_NAME: "Engineering Physics"
       PRIVACY: "private"
       # PUBLISH_AT_IST: "19:00"
     steps:
