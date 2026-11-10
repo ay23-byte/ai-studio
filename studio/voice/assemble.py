@@ -24,7 +24,7 @@ from studio.logs import get_logger
 from studio.media import ffmpeg
 from studio.resilience import RetryExhausted, retry_call
 from studio.voice.engines import get_engine
-from studio.voice.engines.base import TTSEngine
+from studio.voice.engines.base import TTSEngine, VoiceUnavailable
 from studio.voice.humanize import build_utterances_for_chunks
 from studio.voice.types import (
     PacingProfile,
@@ -182,6 +182,11 @@ def synthesize(
             "Pick another engine or set CHATTERBOX_MODEL=multilingual."
         )
 
+    try:
+        engine_obj.prepare()
+    except Exception as exc:  # noqa: BLE001 - surfaced with engine context
+        raise RuntimeError(f"Voice engine {engine_obj.name!r} failed to start: {exc}") from exc
+
     planned_chunks = _coerce_chunks(chunks)
     utterances = build_utterances_for_chunks(planned_chunks, pacing, language=language)
     if not utterances:
@@ -246,6 +251,7 @@ def synthesize(
                 attempts=attempts,
                 base_delay=float(os.getenv("VOICE_RETRY_DELAY", "2") or 2),
                 max_delay=30,
+                give_up_on=(VoiceUnavailable,),
                 label=f"{engine_obj.name} sentence {index + 1}/{len(utterances)}",
                 on_retry=_drop_partial,
             )
