@@ -71,7 +71,7 @@ def _load() -> dict[str, object]:
         "TELEGRAM_BOT_TOKEN": _env("TELEGRAM_BOT_TOKEN"),
         "TELEGRAM_CHAT_ID": _env("TELEGRAM_CHAT_ID"),
         # --- channel ------------------------------------------------------ #
-        "CHANNEL_NAME": _env("CHANNEL_NAME", "Engineering Physics"),
+        "CHANNEL_NAME": _env("CHANNEL_NAME", "Power Codex"),
         "PRIVACY": _env("PRIVACY", "private"),
         "PUBLISH_AT_IST": _env("PUBLISH_AT_IST"),
         # --- voice -------------------------------------------------------- #

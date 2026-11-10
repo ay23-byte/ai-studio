@@ -103,7 +103,7 @@ def build_longform(
         first = sections[0].get("_media", {}).get("path") if sections else None
         thumb = thumbnails.make_thumbnail(
             Path(first) if first else None,
-            script.get("title", "Engineering Physics"),
+            script.get("title", "Power Codex"),
             config.OUTPUT_DIR / f"longform_{job_id}.jpg",
             channel=config.CHANNEL_NAME,
         )
