@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8
+ruff>=0.6
+# Provides a static ffmpeg build so tests run without a system install.
+imageio-ffmpeg>=0.5

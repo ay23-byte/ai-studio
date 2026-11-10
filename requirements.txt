@@ -1,6 +1,9 @@
-edge-tts
-requests
-google-api-python-client
-google-auth
-google-auth-oauthlib
-python-dotenv
+# Runtime + publishing dependencies.
+# Voice: `pip install -r requirements-voice.txt` adds Chatterbox (torch + model).
+# edge-tts is the free fallback narrator, installed by default.
+edge-tts>=6.1
+requests>=2.28
+python-dotenv>=1.0
+google-api-python-client>=2.100
+google-auth>=2.23
+google-auth-oauthlib>=1.1

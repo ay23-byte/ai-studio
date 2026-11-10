@@ -1,0 +1,119 @@
+name: make-longform
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Video topic"
+        required: true
+      category:
+        description: "Category"
+        type: choice
+        options: [finance, markets, money, power, human]
+        default: finance
+      minutes:
+        description: "Target length (minutes)"
+        type: choice
+        options: ["5", "7", "10", "12"]
+        default: "7"
+      engine:
+        description: "Voice engine (chatterbox-http = remote GPU server)"
+        type: choice
+        options: [auto, chatterbox-http, chatterbox, edge, silent]
+        default: auto
+      profile:
+        description: "Pacing profile"
+        type: choice
+        options: [natural, documentary, fast, energetic]
+        default: natural
+      upload:
+        description: "Upload to YouTube after building?"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: studio-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      VOICE_ENGINE: ${{ inputs.engine || 'auto' }}
+      VOICE_PROFILE: ${{ inputs.profile || 'natural' }}
+      CHATTERBOX_API_URL: ${{ secrets.CHATTERBOX_API_URL }}
+      CHATTERBOX_API_TOKEN: ${{ secrets.CHATTERBOX_API_TOKEN }}
+      CHATTERBOX_REF: ${{ vars.CHATTERBOX_REF }}
+      CHANNEL_NAME: "Power Codex"
+      PRIVACY: "private"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-devanagari
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install local Chatterbox
+        if: ${{ inputs.engine == 'chatterbox' }}
+        run: pip install -r requirements-voice.txt
+
+      - name: Build long-form video
+        run: |
+          python run.py long "${{ inputs.topic }}" \
+            --category "${{ inputs.category }}" \
+            --minutes ${{ inputs.minutes }} \
+            --engine "$VOICE_ENGINE" \
+            --profile "$VOICE_PROFILE"
+
+      - name: Upload to YouTube
+        if: ${{ inputs.upload == true }}
+        run: python run_daily.py --upload-latest
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: longform-output
+          path: |
+            output/*.mp4
+            output/*.jpg
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: studio-db
+          path: db/studio.sqlite
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Alert on failure
+        if: failure()
+        run: |
+          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+              -d chat_id="$TELEGRAM_CHAT_ID" \
+              -d text="❌ AI Studio make-longform failed. Check GitHub Actions." > /dev/null
+          fi

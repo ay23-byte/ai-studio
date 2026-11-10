@@ -1,5 +1,12 @@
-import json, re, requests, time
-from core.config import GEMINI_API_KEY, GEMINI_MODEL
+import json
+import time
+
+import requests
+
+from studio import config
+from studio.logs import get_logger
+
+log = get_logger(__name__)
 
 SHORTS_PROMPT = """Write ONE Shorts script for a Hindi/Hinglish YouTube channel about: "{topic}" (category: {category})
 
@@ -31,17 +38,19 @@ Return ONLY valid JSON:
 {{"title":"...","description":"100 word SEO description","tags":["..."],"hook":"...","category":"{category}","format":"longform","sections":[{{"title":"...","narration":"...","visuals":["..."],"image":"...","keywords":["..."]}}]}}"""
 
 def _ask_gemini(prompt: str) -> str:
-    if not GEMINI_API_KEY:
+    if not config.GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY not set. Get a free key at aistudio.google.com")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    url = ("https://generativelanguage.googleapis.com/v1beta/models/"
+           f"{config.GEMINI_MODEL}:generateContent")
     for attempt in range(3):
         r = requests.post(url,
-            headers={"x-goog-api-key": GEMINI_API_KEY, "Content-Type": "application/json"},
+            headers={"x-goog-api-key": config.GEMINI_API_KEY, "Content-Type": "application/json"},
             json={"contents": [{"parts": [{"text": prompt}]}],
                   "generationConfig": {"temperature": 0.85, "maxOutputTokens": 4096}},
             timeout=120)
         if r.status_code == 429:
-            time.sleep(30 * (attempt + 1)); continue
+            time.sleep(30 * (attempt + 1))
+            continue
         r.raise_for_status()
         return r.json()["candidates"][0]["content"]["parts"][0]["text"]
     raise RuntimeError("Gemini rate-limited after 3 tries")
@@ -49,7 +58,8 @@ def _ask_gemini(prompt: str) -> str:
 def _parse(text: str) -> dict:
     text = text.strip()
     a, b = text.find("{"), text.rfind("}")
-    if a == -1: raise ValueError("No JSON in response")
+    if a == -1:
+        raise ValueError("No JSON in response")
     return json.loads(text[a:b+1])
 
 def generate_shorts_script(topic: str, category: str = "finance") -> dict:
