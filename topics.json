@@ -47,6 +47,16 @@
         ]
       },
       {
+        "say": "सोचो एक शिक्षक कभी आवाज़ नहीं उठाता, फिर भी पूरी कक्षा उसकी बात सुनती है। वजह है उसकी निष्पक्षता और सच्चाई।",
+        "caption": "Socho ek shikshak kabhi awaaz nahi uthata, phir bhi poori kaksha uski baat sunti hai. Wajah hai uski nishpakshta aur sachchai.",
+        "label": "Ek example",
+        "image": "a calm teacher at a blackboard with attentive glowing students",
+        "keywords": [
+          "teacher",
+          "classroom"
+        ]
+      },
+      {
         "say": "डर से मिली ताक़त जल्दी टूट जाती है। भरोसे और इज़्ज़त से बनी ताक़त लंबे समय तक टिकती है।",
         "caption": "Dar se mili taaqat jaldi toot jaati hai. Bharose aur izzat se bani taaqat lambe samay tak tikti hai.",
         "label": "Dar vs izzat",
@@ -64,6 +74,16 @@
         "keywords": [
           "stairs",
           "climb"
+        ]
+      },
+      {
+        "say": "आज से एक छोटा अभ्यास करो। किसी भी बहस में बोलने से पहले सामने वाले की पूरी बात ध्यान से सुनो।",
+        "caption": "Aaj se ek chhota abhyaas karo. Kisi bhi bahas mein bolne se pehle saamne wale ki poori baat dhyaan se suno.",
+        "label": "Aaj aazmao",
+        "image": "a figure leaning in to listen with a glowing ear shape",
+        "keywords": [
+          "listening",
+          "ear"
         ]
       },
       {
@@ -128,6 +148,16 @@
         ]
       },
       {
+        "say": "मान लो इंटरव्यू में आप बार बार घड़ी देखते हो और हाथ बाँधकर बैठते हो। सामने वाले को लग सकता है कि आप असहज हो।",
+        "caption": "Maan lo interview mein aap baar baar ghadi dekhte ho aur haath baandhkar baithte ho. Saamne wale ko lag sakta hai ki aap asahaj ho.",
+        "label": "Interview ka pal",
+        "image": "a figure with crossed arms glancing at a wristwatch across a desk",
+        "keywords": [
+          "interview",
+          "watch"
+        ]
+      },
+      {
         "say": "आवाज़ भी बॉडी लैंग्वेज का हिस्सा है। धीमी और ठहरी हुई आवाज़ में बोली गई बात ज़्यादा वज़नदार लगती है।",
         "caption": "Awaaz bhi body language ka hissa hai. Dheemi aur thehri hui awaaz mein boli gayi baat zyada wazandaar lagti hai.",
         "label": "Awaaz ka asar",
@@ -145,6 +175,16 @@
         "keywords": [
           "conversation",
           "eye contact"
+        ]
+      },
+      {
+        "say": "आज किसी से बात करते समय एक चीज़ चुनो, जैसे सीधा बैठना। और देखो कि बातचीत का माहौल कैसे बदलता है।",
+        "caption": "Aaj kisi se baat karte samay ek cheez chuno, jaise seedha baithna. Aur dekho ki baatcheet ka maahaul kaise badalta hai.",
+        "label": "Aazmaake dekho",
+        "image": "a figure sitting upright with a soft glowing aura during a conversation",
+        "keywords": [
+          "posture",
+          "aura"
         ]
       },
       {
@@ -209,6 +249,16 @@
         ]
       },
       {
+        "say": "इसीलिए लोग अक्सर वही न्यूज़ चैनल देखते हैं जो उनकी राय से मेल खाते हैं। और उन्हें लगता है कि पूरी दुनिया उनसे सहमत है।",
+        "caption": "Isiliye log aksar wahi news channel dekhte hain jo unki raay se mel khaate hain. Aur unhe lagta hai ki poori duniya unse sehmat hai.",
+        "label": "Apni hi goonj",
+        "image": "a figure in a round echo chamber hearing only their own glowing voice",
+        "keywords": [
+          "echo",
+          "chamber"
+        ]
+      },
+      {
         "say": "ये बायस हर इंसान में होता है, इसलिए खुद को दोष मत दो। बस इसके बारे में जागरूक रहो।",
         "caption": "Ye bias har insaan mein hota hai, isliye khud ko dosh mat do. Bas iske baare mein jaagruk raho.",
         "label": "Sabke saath hota hai",
@@ -226,6 +276,16 @@
         "keywords": [
           "lantern",
           "path"
+        ]
+      },
+      {
+        "say": "आज एक ऐसा विचार पढ़ो जो आपकी राय से अलग हो। बस समझने के लिए, बहस जीतने के लिए नहीं।",
+        "caption": "Aaj ek aisa vichaar padho jo aapki raay se alag ho. Bas samajhne ke liye, bahas jeetne ke liye nahi.",
+        "label": "Alag soch padho",
+        "image": "a hand opening a book with a different colored glowing cover",
+        "keywords": [
+          "book",
+          "perspective"
         ]
       },
       {
@@ -290,6 +350,16 @@
         ]
       },
       {
+        "say": "ये चाल फ़्लाइट टिकट से लेकर ऑनलाइन शॉपिंग तक हर जगह दिखती है। देखो, आख़िरी तीन टिकट बचे हैं जैसी लाइनें आपने कितनी बार पढ़ी हैं।",
+        "caption": "Ye chaal flight ticket se lekar online shopping tak har jagah dikhti hai. Dekho, aakhri teen ticket bache hain jaisi lines aapne kitni baar padhi hain.",
+        "label": "Har jagah",
+        "image": "a flight booking screen with a glowing countdown and last seats warning",
+        "keywords": [
+          "booking",
+          "screen"
+        ]
+      },
+      {
         "say": "ये हमेशा चाल नहीं होती। कई बार कमी असली भी होती है। बस असली और बनावटी कमी में फ़र्क़ पहचानना ज़रूरी है।",
         "caption": "Ye hamesha chaal nahi hoti. Kai baar kami asli bhi hoti hai. Bas asli aur banaavati kami mein farq pehchaanna zaroori hai.",
         "label": "Asli ya nakli",
@@ -307,6 +377,16 @@
         "keywords": [
           "calm",
           "moon"
+        ]
+      },
+      {
+        "say": "आज किसी ऑफ़र को देखकर खुद से पूछो। अगर ये कल भी मिलता, तो क्या मैं इसे लेता?",
+        "caption": "Aaj kisi offer ko dekhkar khud se poochho. Agar ye kal bhi milta, to kya main ise leta?",
+        "label": "Ek sawaal",
+        "image": "a calm figure facing a glowing sale sign with a question mark",
+        "keywords": [
+          "sale",
+          "question"
         ]
       },
       {
@@ -371,6 +451,16 @@
         ]
       },
       {
+        "say": "जैसे कोई आपके काम में गलती निकाले, तो पहले दिल कहता है कि पलटकर जवाब दो। पर पहले सिर्फ़ सुनना सब कुछ बदल सकता है।",
+        "caption": "Jaise koi aapke kaam mein galti nikaale, to pehle dil kehta hai ki palatkar jawab do. Par pehle sirf sunna sab kuch badal sakta hai.",
+        "label": "Aalochna ka pal",
+        "image": "a figure holding a calm breath while a critical speech bubble floats by",
+        "keywords": [
+          "criticism",
+          "calm"
+        ]
+      },
+      {
         "say": "इसीलिए जवाब देने से पहले दस सेकंड रुकना एक छोटी सी आदत है, जो बहुत बड़ा फ़र्क़ ला सकती है।",
         "caption": "Isiliye jawab dene se pehle das second rukna ek chhoti si aadat hai, jo bahut bada farq la sakti hai.",
         "label": "10 second ka pause",
@@ -387,6 +477,16 @@
         "image": "a calm figure standing in a storm while a soft golden light surrounds them",
         "keywords": [
           "storm",
+          "calm"
+        ]
+      },
+      {
+        "say": "अगली बार गुस्सा आए तो मन में दस तक गिनो। फिर एक वाक्य में शांति से अपनी बात कहो।",
+        "caption": "Agli baar gussa aaye to mann mein das tak gino. Phir ek vaakya mein shaanti se apni baat kaho.",
+        "label": "10 tak ginti",
+        "image": "glowing numbers one to ten floating in a calm blue sky",
+        "keywords": [
+          "numbers",
           "calm"
         ]
       },
@@ -452,6 +552,16 @@
         ]
       },
       {
+        "say": "जैसे कोई एक हफ़्ते में गाड़ी चलाना सीखकर खुद को अनुभवी मान ले। जबकि सड़क की असली चुनौतियाँ उसने अभी देखी ही नहीं।",
+        "caption": "Jaise koi ek hafte mein gaadi chalaana seekhkar khud ko anubhavi maan le. Jabki sadak ki asli chunautiyan usne abhi dekhi hi nahi.",
+        "label": "Gaadi ka example",
+        "image": "a new driver confidently at a wheel facing a long winding road ahead",
+        "keywords": [
+          "driving",
+          "road"
+        ]
+      },
+      {
         "say": "खुद को परखने के लिए दूसरों से फ़ीडबैक लो और सवाल पूछो। इससे अपनी असली जगह पता चलती है।",
         "caption": "Khud ko parakhne ke liye doosron se feedback lo aur sawaal poochho. Isse apni asli jagah pata chalti hai.",
         "label": "Feedback lo",
@@ -469,6 +579,16 @@
         "keywords": [
           "book",
           "learning"
+        ]
+      },
+      {
+        "say": "आज किसी एक विषय में खुद से पूछो कि मुझे इसमें असल में क्या नहीं पता। यही सवाल सीखने का दरवाज़ा खोलता है।",
+        "caption": "Aaj kisi ek vishay mein khud se poochho ki mujhe ismein asal mein kya nahi pata. Yahi sawaal seekhne ka darwaza kholta hai.",
+        "label": "Kya nahi pata?",
+        "image": "a glowing door opening with a question mark above it",
+        "keywords": [
+          "door",
+          "question"
         ]
       },
       {
@@ -533,6 +653,16 @@
         ]
       },
       {
+        "say": "इंटरव्यू में भी ऐसा होता है। जो उम्मीदवार अच्छा मुस्कुराता है, उसे हम कई बार ज़्यादा काबिल मान लेते हैं।",
+        "caption": "Interview mein bhi aisa hota hai. Jo ummeedwaar achha muskuraata hai, use hum kai baar zyada kaabil maan lete hain.",
+        "label": "Interview mein",
+        "image": "a smiling candidate glowing brightly across an interviewer's desk",
+        "keywords": [
+          "interview",
+          "smile"
+        ]
+      },
+      {
         "say": "फ़ैसला लेने से पहले हर खूबी को अलग अलग परखो। सिर्फ़ एक छाप पर भरोसा मत करो।",
         "caption": "Faisla lene se pehle har khoobi ko alag alag parkho. Sirf ek chhaap par bharosa mat karo.",
         "label": "Alag alag parkho",
@@ -550,6 +680,16 @@
         "keywords": [
           "magnifier",
           "eyes"
+        ]
+      },
+      {
+        "say": "अगली बार किसी के बारे में राय बनाओ तो खुद से पूछो। मैं किस एक बात से प्रभावित हुआ, और बाकी के बारे में क्या जानता हूँ?",
+        "caption": "Agli baar kisi ke baare mein raay banao to khud se poochho. Main kis ek baat se prabhaavit hua, aur baaki ke baare mein kya jaanta hoon?",
+        "label": "Poochho khud se",
+        "image": "a figure comparing one glowing trait to several dim unknown ones",
+        "keywords": [
+          "traits",
+          "compare"
         ]
       },
       {
@@ -614,6 +754,16 @@
         ]
       },
       {
+        "say": "ऑनलाइन शॉपिंग में पहले ऊँचा दाम दिखाकर फिर छूट देना यही चाल है। हमें लगता है कि हमने बहुत बचा लिया।",
+        "caption": "Online shopping mein pehle ooncha daam dikhakar phir chhoot dena yahi chaal hai. Hamein lagta hai ki humne bahut bacha liya.",
+        "label": "Chhoot ki chaal",
+        "image": "an online store page with a crossed out price and a bright discount banner",
+        "keywords": [
+          "discount",
+          "online"
+        ]
+      },
+      {
         "say": "इससे बचने के लिए खुद रिसर्च करो और अपनी जानकारी से कीमत तय करो। तब दूसरों का आँकड़ा हावी नहीं होगा।",
         "caption": "Isse bachne ke liye khud research karo aur apni jaankari se keemat tay karo. Tab doosron ka aankda haavi nahi hoga.",
         "label": "Khud research karo",
@@ -631,6 +781,16 @@
         "keywords": [
           "number",
           "stage"
+        ]
+      },
+      {
+        "say": "आज कुछ भी खरीदने से पहले दो दुकानों के दाम देखो। फिर अपने बजट के हिसाब से फ़ैसला लो।",
+        "caption": "Aaj kuch bhi khareedne se pehle do dukaanon ke daam dekho. Phir apne budget ke hisaab se faisla lo.",
+        "label": "Dono dekho",
+        "image": "a figure comparing two price tags side by side with a calculator",
+        "keywords": [
+          "price",
+          "compare"
         ]
       },
       {
@@ -695,6 +855,16 @@
         ]
       },
       {
+        "say": "इसीलिए दुकानें और ऐप्स ग्राहकों की रेटिंग और हज़ारों ने खरीदा जैसी बातें बड़ी बड़ी लिखते हैं।",
+        "caption": "Isiliye dukaanein aur apps grahakon ki rating aur hazaaron ne khareeda jaisi baatein badi badi likhte hain.",
+        "label": "Rating ka asar",
+        "image": "a product with a row of glowing five star ratings and a crowd icon",
+        "keywords": [
+          "stars",
+          "rating"
+        ]
+      },
+      {
         "say": "किसी चीज़ को सिर्फ़ इसलिए मत अपनाओ कि सब अपना रहे हैं। पहले खुद से पूछो कि क्या ये मेरे लिए सही है।",
         "caption": "Kisi cheez ko sirf isliye mat apnao ki sab apna rahe hain. Pehle khud se poocho ki kya ye mere liye sahi hai.",
         "label": "Khud se poochho",
@@ -712,6 +882,16 @@
         "keywords": [
           "path",
           "lone"
+        ]
+      },
+      {
+        "say": "आज किसी चीज़ के रिव्यू पढ़ने के बाद खुद से पूछो। क्या ये मेरी अपनी ज़रूरत के हिसाब से सही है?",
+        "caption": "Aaj kisi cheez ke review padhne ke baad khud se poochho. Kya ye meri apni zaroorat ke hisaab se sahi hai?",
+        "label": "Meri zaroorat",
+        "image": "a figure reading reviews with a checklist of personal needs beside them",
+        "keywords": [
+          "reviews",
+          "checklist"
         ]
       },
       {
@@ -776,6 +956,16 @@
         ]
       },
       {
+        "say": "ऑफ़िस में भी यही होता है। जो साथी बिना माँगे आपकी मदद करता है, आप भी उसके लिए कुछ करना चाहते हो।",
+        "caption": "Office mein bhi yahi hota hai. Jo saathi bina maange aapki madad karta hai, aap bhi uske liye kuch karna chahte ho.",
+        "label": "Office ka example",
+        "image": "two colleagues at neighboring desks one passing a glowing helping note",
+        "keywords": [
+          "office",
+          "help"
+        ]
+      },
+      {
         "say": "इसलिए दिल से मदद करो, पर अगर कोई बिना माँगे कुछ दे, तो उस पर बंधा हुआ महसूस मत करो।",
         "caption": "Isliye dil se madad karo, par agar koi bina maange kuch de, to us par bandha hua mehsoos mat karo.",
         "label": "Bandhan nahi",
@@ -793,6 +983,16 @@
         "keywords": [
           "handshake",
           "warm"
+        ]
+      },
+      {
+        "say": "आज किसी की बिना कुछ माँगे छोटी सी मदद करो। और देखो कि रिश्ते में क्या बदलता है।",
+        "caption": "Aaj kisi ki bina kuch maange chhoti si madad karo. Aur dekho ki rishte mein kya badalta hai.",
+        "label": "Madad karke dekho",
+        "image": "a hand offering a glowing small gift to a colleague",
+        "keywords": [
+          "helping",
+          "gift"
         ]
       },
       {
@@ -856,6 +1056,16 @@
         ]
       },
       {
+        "say": "जैसे किसी कोर्स की फ़ीस भर दी और अब वो बेकार लग रहा है। फिर भी बस इसलिए जारी रखना कि पैसे लग चुके हैं, अक्सर और समय बर्बाद करता है।",
+        "caption": "Jaise kisi course ki fees bhar di aur ab wo bekaar lag raha hai. Phir bhi bas isliye jaari rakhna ki paise lag chuke hain, aksar aur samay barbaad karta hai.",
+        "label": "Course ka example",
+        "image": "a student at a laptop with a receipt weighing heavy on their shoulders",
+        "keywords": [
+          "course",
+          "receipt"
+        ]
+      },
+      {
         "say": "खुद से पूछो, अगर आज मैं शुरुआत कर रहा होता, तो क्या यही चुनता?",
         "caption": "Khud se poochho, agar aaj main shuruaat kar raha hota, to kya yahi chunta?",
         "label": "Ek sawaal",
@@ -873,6 +1083,16 @@
         "keywords": [
           "balloon",
           "release"
+        ]
+      },
+      {
+        "say": "आज एक चीज़ चुनो जिसे आप सिर्फ़ इसलिए चला रहे हो कि पहले बहुत लगा चुके हो। ईमानदारी से देखो कि आगे उसका फ़ायदा क्या है।",
+        "caption": "Aaj ek cheez chuno jise aap sirf isliye chala rahe ho ki pehle bahut laga chuke ho. Imaandaari se dekho ki aage uska faayda kya hai.",
+        "label": "Ek chhoti jaanch",
+        "image": "a figure inspecting a heavy chain and a glowing path ahead",
+        "keywords": [
+          "chain",
+          "path"
         ]
       },
       {
@@ -937,6 +1157,16 @@
         ]
       },
       {
+        "say": "इसीलिए लोग अपना फ़ोन प्लान या बैंक नहीं बदलते, चाहे बेहतर विकल्प हों। उन्हें जो है उसे खोने का डर रहता है।",
+        "caption": "Isiliye log apna phone plan ya bank nahi badalte, chahe behtar vikalp hon. Unhe jo hai use khone ka darr rehta hai.",
+        "label": "Badalne ka darr",
+        "image": "a figure clutching an old phone while a better glowing one waits nearby",
+        "keywords": [
+          "phone",
+          "change"
+        ]
+      },
+      {
         "say": "जब अगली बार डर लगे, तो खुद से पूछो कि मैं असल में क्या खो रहा हूँ और क्या पा सकता हूँ।",
         "caption": "Jab agli baar darr lage, to khud se poochho ki main asal mein kya kho raha hoon aur kya paa sakta hoon.",
         "label": "Dono dekho",
@@ -954,6 +1184,16 @@
         "keywords": [
           "coin",
           "spin"
+        ]
+      },
+      {
+        "say": "अगली बार डर लगे तो काग़ज़ पर लिखो। अगर मैं ये करूँ तो सबसे अच्छा और सबसे बुरा क्या हो सकता है।",
+        "caption": "Agli baar darr lage to kaagaz par likho. Agar main ye karun to sabse achha aur sabse bura kya ho sakta hai.",
+        "label": "Best aur worst",
+        "image": "a notebook with two columns best and worst lit by a small lamp",
+        "keywords": [
+          "notebook",
+          "lamp"
         ]
       },
       {
@@ -1018,6 +1258,16 @@
         ]
       },
       {
+        "say": "शादी या त्योहार की तस्वीरें देखकर लगता है कि सब मज़े में हैं। पर तस्वीर के पीछे की थकान और परेशानियाँ हमें नहीं दिखतीं।",
+        "caption": "Shaadi ya tyohaar ki tasveerein dekhkar lagta hai ki sab maze mein hain. Par tasveer ke peeche ki thakaan aur pareshaaniyan hamein nahi dikhtin.",
+        "label": "Tasveer ke peeche",
+        "image": "a glowing festive photo with a tired figure visible behind the frame",
+        "keywords": [
+          "photo",
+          "festival"
+        ]
+      },
+      {
         "say": "इलाज है जोमो। यानी जॉय ऑफ़ मिसिंग आउट। जो नहीं कर रहे, उसकी जगह जो कर रहे हो उसमें खुश रहो।",
         "caption": "Ilaaj hai JOMO. Yaani joy of missing out. Jo nahi kar rahe, uski jagah jo kar rahe ho usmein khush raho.",
         "label": "JOMO",
@@ -1035,6 +1285,16 @@
         "keywords": [
           "turtle",
           "path"
+        ]
+      },
+      {
+        "say": "आज एक घंटे के लिए सोशल मीडिया बंद रखो। और कोई ऐसा काम करो जो आपको सच में अच्छा लगता है।",
+        "caption": "Aaj ek ghante ke liye social media band rakho. Aur koi aisa kaam karo jo aapko sach mein achha lagta hai.",
+        "label": "1 ghanta offline",
+        "image": "a phone facedown beside a cup of tea and a sketchbook",
+        "keywords": [
+          "tea",
+          "sketchbook"
         ]
       },
       {
@@ -1099,6 +1359,16 @@
         ]
       },
       {
+        "say": "जैसे परीक्षा से पहले अचानक कमरा साफ़ करने का मन होने लगता है। ये भी टालने का एक तरीका है।",
+        "caption": "Jaise pariksha se pehle achanak kamra saaf karne ka mann hone lagta hai. Ye bhi taalne ka ek tareeka hai.",
+        "label": "Kamra saaf",
+        "image": "a student sweeping a room while an untouched textbook glows on the desk",
+        "keywords": [
+          "sweeping",
+          "textbook"
+        ]
+      },
+      {
         "say": "काम को छोटे हिस्सों में बाँटो और हर हिस्से के बाद खुद को शाबाशी दो।",
         "caption": "Kaam ko chhote hisson mein baanto aur har hisse ke baad khud ko shaabaashi do.",
         "label": "Chhote hisse",
@@ -1116,6 +1386,16 @@
         "keywords": [
           "footprint",
           "sunrise"
+        ]
+      },
+      {
+        "say": "आज सबसे ज़रूरी काम चुनो और सिर्फ़ पाँच मिनट के लिए शुरू करो। शुरुआत के बाद काम आसान लगेगा।",
+        "caption": "Aaj sabse zaroori kaam chuno aur sirf paanch minute ke liye shuru karo. Shuruaat ke baad kaam aasaan lagega.",
+        "label": "Sirf 5 minute",
+        "image": "a five minute timer starting beside an open notebook",
+        "keywords": [
+          "timer",
+          "notebook"
         ]
       },
       {
@@ -1180,6 +1460,16 @@
         ]
       },
       {
+        "say": "कई बार नई नौकरी के पहले हफ़्ते में लगता है कि सब मुझसे ज़्यादा जानते हैं। पर वो भी कभी नए थे।",
+        "caption": "Kai baar nayi naukri ke pehle hafte mein lagta hai ki sab mujhse zyada jaante hain. Par wo bhi kabhi naye the.",
+        "label": "Naya din",
+        "image": "a new employee holding a box at an office door with glowing colleagues inside",
+        "keywords": [
+          "newjob",
+          "office"
+        ]
+      },
+      {
         "say": "अपनी उपलब्धियों की एक लिस्ट बनाओ और उसे समय समय पर पढ़ो। सबूत शक को कमज़ोर करते हैं।",
         "caption": "Apni uplabdhiyon ki ek list banao aur use samay samay par padho. Saboot shak ko kamzor karte hain.",
         "label": "Saboot ki list",
@@ -1197,6 +1487,16 @@
         "keywords": [
           "summit",
           "sunrise"
+        ]
+      },
+      {
+        "say": "आज किसी भरोसेमंद इंसान को अपना ऐसा डर बताओ। आप पाओगे कि वो भी कभी ऐसा महसूस कर चुके हैं।",
+        "caption": "Aaj kisi bharosemand insaan ko apna aisa darr batao. Aap paoge ki wo bhi kabhi aisa mehsoos kar chuke hain.",
+        "label": "Batao",
+        "image": "two figures sharing tea on a bench with soft glowing light between them",
+        "keywords": [
+          "friends",
+          "bench"
         ]
       },
       {
@@ -1261,6 +1561,16 @@
         ]
       },
       {
+        "say": "जैसे कोई कहता है कि मैं पर्यावरण का ख़्याल रखता हूँ, पर रोज़ बहुत प्लास्टिक इस्तेमाल करता है। तब वो खुद को कोई बहाना दे देता है।",
+        "caption": "Jaise koi kehta hai ki main paryavaran ka khayal rakhta hoon, par roz bahut plastic istemaal karta hai. Tab wo khud ko koi bahaana de deta hai.",
+        "label": "Ek example",
+        "image": "a figure holding a plastic bag beside a glowing green plant with a worried look",
+        "keywords": [
+          "plastic",
+          "plant"
+        ]
+      },
+      {
         "say": "अपने बहानों को पहचानो। अगर कोई बात बार बार खटकती है, तो शायद वही बदलाव का इशारा है।",
         "caption": "Apne bahaano ko pehchano. Agar koi baat baar baar khatakti hai, to shayad wahi badlaav ka ishaara hai.",
         "label": "Khatak",
@@ -1278,6 +1588,16 @@
         "keywords": [
           "mirror",
           "courage"
+        ]
+      },
+      {
+        "say": "आज अपनी एक ऐसी आदत लिखो जो आपकी सोच से मेल नहीं खाती। फिर उसमें एक छोटा बदलाव चुनो।",
+        "caption": "Aaj apni ek aisi aadat likho jo aapki soch se mel nahi khaati. Phir usmein ek chhota badlaav chuno.",
+        "label": "Ek badlaav",
+        "image": "a notebook with two lines glowing and a small arrow aligning them",
+        "keywords": [
+          "notebook",
+          "align"
         ]
       },
       {
@@ -1342,6 +1662,16 @@
         ]
       },
       {
+        "say": "जैसे कोई मान ले कि मुझे नए लोगों से बात करना नहीं आता। फिर वो बातचीत से बचता है, और वाकई अभ्यास नहीं कर पाता।",
+        "caption": "Jaise koi maan le ki mujhe naye logon se baat karna nahi aata. Phir wo baatcheet se bachta hai, aur waaqai abhyaas nahi kar paata.",
+        "label": "Ek example",
+        "image": "a shy figure stepping back from a glowing circle of conversation",
+        "keywords": [
+          "shy",
+          "conversation"
+        ]
+      },
+      {
         "say": "तो अपनी बातों पर ध्यान दो। खुद से कहो कि मैं कोशिश करूँगा और सीखूँगा।",
         "caption": "To apni baaton par dhyaan do. Khud se kaho ki main koshish karunga aur seekhunga.",
         "label": "Naya vaakya",
@@ -1359,6 +1689,16 @@
         "keywords": [
           "ladder",
           "climb"
+        ]
+      },
+      {
+        "say": "आज एक नकारात्मक वाक्य को बदलकर लिखो। जैसे मैं नहीं कर सकता की जगह मैं कोशिश करूँगा।",
+        "caption": "Aaj ek nakaaratmak vaakya ko badalkar likho. Jaise main nahi kar sakta ki jagah main koshish karunga.",
+        "label": "Vaakya badlo",
+        "image": "a figure rewriting a dark sentence into a glowing one on paper",
+        "keywords": [
+          "rewrite",
+          "sentence"
         ]
       },
       {
@@ -1423,6 +1763,16 @@
         ]
       },
       {
+        "say": "जैसे किसी ने मीटिंग में गलत शब्द बोल दिया और सोचता रहा कि सब हँसेंगे। जबकि ज़्यादातर लोगों को अगले ही मिनट याद भी नहीं रहा।",
+        "caption": "Jaise kisi ne meeting mein galat shabd bol diya aur sochta raha ki sab hansenge. Jabki zyadatar logon ko agle hi minute yaad bhi nahi raha.",
+        "label": "Meeting ka pal",
+        "image": "a meeting room where everyone is looking at their own screens while one figure worries",
+        "keywords": [
+          "meeting",
+          "worry"
+        ]
+      },
+      {
         "say": "अगली बार घबराओ तो याद रखो कि लोग आपकी तरफ़ उतना नहीं देख रहे जितना आप सोच रहे हो।",
         "caption": "Agli baar ghabraao to yaad rakho ki log aapki taraf utna nahi dekh rahe jitna aap soch rahe ho.",
         "label": "Yaad rakho",
@@ -1440,6 +1790,16 @@
         "keywords": [
           "bird",
           "sky"
+        ]
+      },
+      {
+        "say": "आज एक छोटा सा जोखिम लो, जैसे मीटिंग में एक सवाल पूछना। और देखो कि कितने कम लोग उस पर ध्यान देते हैं।",
+        "caption": "Aaj ek chhota sa jokhim lo, jaise meeting mein ek sawaal poochna. Aur dekho ki kitne kam log us par dhyaan dete hain.",
+        "label": "Ek sawaal",
+        "image": "a figure raising a hand with a small glowing question mark",
+        "keywords": [
+          "raise hand",
+          "question"
         ]
       },
       {
@@ -1503,6 +1863,16 @@
         ]
       },
       {
+        "say": "जैसे किसी ग्रुप चैट में सब देखते हैं कि कोई परेशान है, पर हर कोई सोचता है कि कोई और जवाब दे देगा।",
+        "caption": "Jaise kisi group chat mein sab dekhte hain ki koi pareshaan hai, par har koi sochta hai ki koi aur jawab de dega.",
+        "label": "Group chat",
+        "image": "a group chat screen with many seen marks and no reply",
+        "keywords": [
+          "chat",
+          "seen"
+        ]
+      },
+      {
         "say": "समाधान आसान है। खुद आगे आओ, या किसी एक इंसान को चुनकर सीधे कहो कि आप फ़ोन करो और आप पानी लाओ।",
         "caption": "Samadhaan aasaan hai. Khud aage aao, ya kisi ek insaan ko chunkar seedhe kaho ki aap phone karo aur aap paani lao.",
         "label": "Seedhe kaho",
@@ -1520,6 +1890,16 @@
         "keywords": [
           "step",
           "follow"
+        ]
+      },
+      {
+        "say": "आज अगर किसी को मदद की ज़रूरत दिखे तो पहले आप हाथ बढ़ाओ। एक सीधा सवाल पूछो कि क्या मैं मदद करूँ।",
+        "caption": "Aaj agar kisi ko madad ki zaroorat dikhe to pehle aap haath badhao. Ek seedha sawaal poochho ki kya main madad karun.",
+        "label": "Pehle aap",
+        "image": "a figure offering a helping hand to someone in a crowd",
+        "keywords": [
+          "help",
+          "hand"
         ]
       },
       {
@@ -1584,6 +1964,16 @@
         ]
       },
       {
+        "say": "कई बार सिरदर्द में लोग कहते हैं कि गोली हाथ में लेते ही आराम लगने लगा। ये उम्मीद का असर हो सकता है।",
+        "caption": "Kai baar sirdard mein log kehte hain ki goli haath mein lete hi aaram lagne laga. Ye ummeed ka asar ho sakta hai.",
+        "label": "Ummeed ka asar",
+        "image": "a figure holding a pill with a soft calming glow around their head",
+        "keywords": [
+          "pill",
+          "calm"
+        ]
+      },
+      {
         "say": "असल में प्लेसिबो हमें सिखाता है कि अपेक्षाएँ और विश्वास हमारे अनुभव को आकार देते हैं।",
         "caption": "Asal mein placebo hamein sikhata hai ki apekshayein aur vishwas hamare anubhav ko aakaar dete hain.",
         "label": "Vishwas ka asar",
@@ -1601,6 +1991,16 @@
         "keywords": [
           "balance",
           "medicine"
+        ]
+      },
+      {
+        "say": "आज अपनी सेहत की एक छोटी आदत चुनो, जैसे पानी पीना। और उसे विश्वास के साथ निभाओ।",
+        "caption": "Aaj apni sehat ki ek chhoti aadat chuno, jaise paani peena. Aur use vishwas ke saath nibhao.",
+        "label": "Sehat ki aadat",
+        "image": "a glass of water glowing on a morning table",
+        "keywords": [
+          "water",
+          "morning"
         ]
       },
       {
@@ -1665,6 +2065,16 @@
         ]
       },
       {
+        "say": "जैसे थकान के बाद चाय पीना। संकेत है थकान, क्रिया है चाय पीना, और इनाम है आराम का एहसास।",
+        "caption": "Jaise thakaan ke baad chai peena. Sanket hai thakaan, kriya hai chai peena, aur inaam hai aaram ka ehsaas.",
+        "label": "Chai ka loop",
+        "image": "a steaming tea cup connected by glowing arrows to a tired face and a relaxed face",
+        "keywords": [
+          "tea",
+          "loop"
+        ]
+      },
+      {
         "say": "बुरी आदत छोड़नी हो तो संकेत और इनाम को पहचानो और क्रिया को बदलो। जैसे फ़ोन की जगह पानी पियो।",
         "caption": "Buri aadat chhodni ho to sanket aur inaam ko pehchano aur kriya ko badlo. Jaise phone ki jagah paani piyo.",
         "label": "Kriya badlo",
@@ -1682,6 +2092,16 @@
         "keywords": [
           "snowball",
           "hill"
+        ]
+      },
+      {
+        "say": "आज अपनी एक आदत लिखो और उसके संकेत और इनाम को पहचानो। यही बदलाव का पहला कदम है।",
+        "caption": "Aaj apni ek aadat likho aur uske sanket aur inaam ko pehchano. Yahi badlaav ka pehla kadam hai.",
+        "label": "Pehchano",
+        "image": "a notebook with a three part loop drawn in glowing ink",
+        "keywords": [
+          "notebook",
+          "loop"
         ]
       },
       {
@@ -1746,6 +2166,16 @@
         ]
       },
       {
+        "say": "खाना खाते समय भी फ़ोन हाथ में रहता है। हम स्वाद से ज़्यादा अगली नोटिफ़िकेशन का इंतज़ार करते हैं।",
+        "caption": "Khaana khaate samay bhi phone haath mein rehta hai. Hum swaad se zyada agli notification ka intezaar karte hain.",
+        "label": "Khaane ke saath",
+        "image": "a plate of food ignored while a glowing phone fills the figure's attention",
+        "keywords": [
+          "food",
+          "phone"
+        ]
+      },
+      {
         "say": "फ़ोन में स्क्रीन टाइम की सीमा लगाओ और नोटिफ़िकेशन बंद रखो। सोने से पहले फ़ोन दूर रखो।",
         "caption": "Phone mein screen time ki seema lagao aur notification band rakho. Sone se pehle phone door rakho.",
         "label": "Seema lagao",
@@ -1763,6 +2193,16 @@
         "keywords": [
           "hand",
           "control"
+        ]
+      },
+      {
+        "say": "आज एक भोजन फ़ोन के बिना खाओ। और ध्यान दो कि स्वाद और बातचीत कैसी लगती है।",
+        "caption": "Aaj ek bhojan phone ke bina khao. Aur dhyaan do ki swaad aur baatcheet kaisi lagti hai.",
+        "label": "Phone-free khaana",
+        "image": "a family sharing a meal at a table with phones stacked away",
+        "keywords": [
+          "family",
+          "meal"
         ]
       },
       {
@@ -1827,6 +2267,16 @@
         ]
       },
       {
+        "say": "जैसे कोई बच्चा साइकिल से गिरकर कहता है कि मैं फिर कोशिश करूँगा। वो गिरने को हार नहीं, अभ्यास मानता है।",
+        "caption": "Jaise koi bachcha cycle se girkar kehta hai ki main phir koshish karunga. Wo girne ko haar nahi, abhyaas maanta hai.",
+        "label": "Bachche ki cycle",
+        "image": "a child getting back on a fallen bicycle with a glowing smile",
+        "keywords": [
+          "child",
+          "bicycle"
+        ]
+      },
+      {
         "say": "अपनी भाषा बदलकर शुरू करो। मैं नहीं कर सकता की जगह कहो कि मैं इसे सीखूँगा।",
         "caption": "Apni bhaasha badalkar shuru karo. Main nahi kar sakta ki jagah kaho ki main ise seekhunga.",
         "label": "Bhaasha badlo",
@@ -1844,6 +2294,16 @@
         "keywords": [
           "road",
           "mountains"
+        ]
+      },
+      {
+        "say": "आज अपनी एक गलती से एक चीज़ सीखकर लिखो। यही सीखने वाली सोच की पहचान है।",
+        "caption": "Aaj apni ek galti se ek cheez seekhkar likho. Yahi seekhne wali soch ki pehchaan hai.",
+        "label": "Galti se seekh",
+        "image": "a notebook page with a glowing lesson learned written under a crossed out mistake",
+        "keywords": [
+          "notebook",
+          "lesson"
         ]
       },
       {
@@ -1908,6 +2368,16 @@
         ]
       },
       {
+        "say": "जैसे कोई सालों से एक ही रास्ते से ऑफ़िस जाता है। नया रास्ता चुनने पर नई दुकानें, नए लोग और नई सोच मिल सकती है।",
+        "caption": "Jaise koi saalon se ek hi raaste se office jaata hai. Naya raasta chunne par nayi dukaanein, naye log aur nayi soch mil sakti hai.",
+        "label": "Naya raasta",
+        "image": "a figure choosing a new glowing side street instead of the usual road",
+        "keywords": [
+          "street",
+          "choice"
+        ]
+      },
+      {
         "say": "हर हफ़्ते एक छोटी सी नई चीज़ आज़माओ, जैसे नया सवाल पूछना या कोई नई जगह जाना।",
         "caption": "Har hafte ek chhoti si nayi cheez aazmaao, jaise naya sawaal poochna ya koi nayi jagah jaana.",
         "label": "Roz ek nayi cheez",
@@ -1925,6 +2395,16 @@
         "keywords": [
           "flame",
           "twig"
+        ]
+      },
+      {
+        "say": "आज एक छोटी सी नई चीज़ करो, जैसे नया रास्ता अपनाना या किसी नए इंसान से बात करना।",
+        "caption": "Aaj ek chhoti si nayi cheez karo, jaise naya raasta apnaana ya kisi naye insaan se baat karna.",
+        "label": "Ek nayi cheez",
+        "image": "a figure stepping onto an unfamiliar glowing path",
+        "keywords": [
+          "path",
+          "new"
         ]
       },
       {
@@ -1989,6 +2469,16 @@
         ]
       },
       {
+        "say": "जैसे किसी को संदेश भेजा और जवाब नहीं आया, तो मन सौ कहानियाँ बनाने लगता है। जबकि हो सकता है वो बस व्यस्त हो।",
+        "caption": "Jaise kisi ko sandesh bheja aur jawab nahi aaya, to mann sau kahaaniyan banane lagta hai. Jabki ho sakta hai wo bas vyast ho.",
+        "label": "Jawab nahi aaya",
+        "image": "a phone with unanswered message and many glowing imagined scenarios around it",
+        "keywords": [
+          "message",
+          "imagine"
+        ]
+      },
+      {
         "say": "चिंता को कागज़ पर लिखो। फिर पूछो कि इसमें मेरे हाथ में क्या है और क्या नहीं। जो हाथ में है, उस पर काम करो।",
         "caption": "Chinta ko kaagaz par likho. Phir poochho ki ismein mere haath mein kya hai aur kya nahi. Jo haath mein hai, us par kaam karo.",
         "label": "Likh dalo",
@@ -2006,6 +2496,16 @@
         "keywords": [
           "bench",
           "talk"
+        ]
+      },
+      {
+        "say": "आज जब सोच घूमने लगे, तो खुद से पूछो कि अभी इस बारे में मैं एक छोटा कदम क्या उठा सकता हूँ।",
+        "caption": "Aaj jab soch ghoomne lage, to khud se poochho ki abhi is baare mein main ek chhota kadam kya utha sakta hoon.",
+        "label": "Ek chhota kadam",
+        "image": "a looping thought path breaking into a straight glowing line",
+        "keywords": [
+          "loop",
+          "line"
         ]
       },
       {
@@ -2070,6 +2570,16 @@
         ]
       },
       {
+        "say": "जैसे किसी नई जगह पर पहला दिन अच्छा गुज़रे, तो हम पूरी जगह को ज़्यादा पसंद करने लगते हैं।",
+        "caption": "Jaise kisi nayi jagah par pehla din achha guzre, to hum poori jagah ko zyada pasand karne lagte hain.",
+        "label": "Pehla din",
+        "image": "a traveler smiling at a glowing city on the first morning",
+        "keywords": [
+          "traveler",
+          "city"
+        ]
+      },
+      {
         "say": "बातचीत शुरू करते समय अपनी सबसे अच्छी और ज़रूरी बात पहले रखो। लोग उसे लंबे समय तक याद रखेंगे।",
         "caption": "Baatcheet shuru karte samay apni sabse achhi aur zaroori baat pehle rakho. Log use lambe samay tak yaad rakhenge.",
         "label": "Pehle kaam ki baat",
@@ -2087,6 +2597,16 @@
         "keywords": [
           "path",
           "finish"
+        ]
+      },
+      {
+        "say": "आज किसी नए इंसान से मिलो तो शुरुआत एक सच्ची मुस्कान और साफ़ नमस्ते से करो।",
+        "caption": "Aaj kisi naye insaan se milo to shuruaat ek sachchi muskaan aur saaf namaste se karo.",
+        "label": "Achhi shuruaat",
+        "image": "two figures greeting with a warm smile and folded hands",
+        "keywords": [
+          "greeting",
+          "smile"
         ]
       },
       {
@@ -2150,6 +2670,16 @@
         ]
       },
       {
+        "say": "जैसे कोई धीरे बोलने वाला इंसान मिले, तो आप भी अनजाने में धीरे बोलने लगते हो। ये जुड़ाव की निशानी है।",
+        "caption": "Jaise koi dheere bolne wala insaan mile, to aap bhi anjaane mein dheere bolne lagte ho. Ye judaav ki nishaani hai.",
+        "label": "Boli ka taal",
+        "image": "two figures speaking in matching gentle glowing waves",
+        "keywords": [
+          "voice",
+          "wave"
+        ]
+      },
+      {
         "say": "पर इसे नकली या ज़बरदस्ती मत करो। बनावटीपन लोग जल्दी भाँप लेते हैं।",
         "caption": "Par ise nakli ya zabardasti mat karo. Banaavatipan log jaldi bhaanp lete hain.",
         "label": "Nakli nahi",
@@ -2167,6 +2697,16 @@
         "keywords": [
           "conversation",
           "warm"
+        ]
+      },
+      {
+        "say": "आज किसी बातचीत में सामने वाले की बोलने की गति पर ध्यान दो और उसके साथ तालमेल बिठाओ।",
+        "caption": "Aaj kisi baatcheet mein saamne wale ki bolne ki gati par dhyaan do aur uske saath taalmel bithao.",
+        "label": "Taalmel",
+        "image": "two figures walking in sync along a glowing path",
+        "keywords": [
+          "sync",
+          "walking"
         ]
       },
       {
@@ -2231,6 +2771,16 @@
         ]
       },
       {
+        "say": "जैसे विज्ञापन में डॉक्टर जैसा दिखने वाला इंसान किसी चीज़ की सिफ़ारिश करे, तो हम बिना जाँचे मान लेते हैं।",
+        "caption": "Jaise vigyaapan mein doctor jaisa dikhne wala insaan kisi cheez ki sifaarish kare, to hum bina jaanche maan lete hain.",
+        "label": "Vigyaapan",
+        "image": "an advertisement featuring a figure in a white coat holding a product",
+        "keywords": [
+          "ad",
+          "doctor"
+        ]
+      },
+      {
         "say": "सवाल पूछना सीखो। जैसे कि इसका आधार क्या है, और क्या कोई दूसरी राय भी है।",
         "caption": "Sawaal poochna seekho. Jaise ki iska aadhaar kya hai, aur kya koi doosri raay bhi hai.",
         "label": "Sawaal poochho",
@@ -2248,6 +2798,16 @@
         "keywords": [
           "lantern",
           "respect"
+        ]
+      },
+      {
+        "say": "आज कोई भी सलाह सुनकर एक सवाल पूछो। इसका प्रमाण क्या है?",
+        "caption": "Aaj koi bhi salah sunkar ek sawaal poochho. Iska pramaan kya hai?",
+        "label": "Pramaan?",
+        "image": "a magnifying glass over a glowing statement",
+        "keywords": [
+          "magnifier",
+          "proof"
         ]
       },
       {
@@ -2312,6 +2872,16 @@
         ]
       },
       {
+        "say": "जैसे दिन भर की मीटिंग के बाद शाम को मेन्यू देखकर भी हम कह देते हैं कि कुछ भी मँगा लो।",
+        "caption": "Jaise din bhar ki meeting ke baad shaam ko menu dekhkar bhi hum keh dete hain ki kuch bhi manga lo.",
+        "label": "Shaam ka menu",
+        "image": "a tired figure staring at a long glowing menu in a restaurant",
+        "keywords": [
+          "menu",
+          "tired"
+        ]
+      },
+      {
         "say": "छोटी चीज़ों को आदत बना लो। जैसे कपड़े या खाना पहले से तय कर लो, ताकि ऊर्जा बची रहे।",
         "caption": "Chhoti cheezon ko aadat bana lo. Jaise kapde ya khaana pehle se tay kar lo, taaki urja bachi rahe.",
         "label": "Pehle se tay",
@@ -2329,6 +2899,16 @@
         "keywords": [
           "jar",
           "light"
+        ]
+      },
+      {
+        "say": "आज रात को कल के कपड़े और नाश्ता पहले से तय करके रख दो।",
+        "caption": "Aaj raat ko kal ke kapde aur naashta pehle se tay karke rakh do.",
+        "label": "Kal ki taiyaari",
+        "image": "clothes and breakfast neatly laid out for tomorrow morning",
+        "keywords": [
+          "clothes",
+          "breakfast"
         ]
       },
       {
@@ -2393,6 +2973,16 @@
         ]
       },
       {
+        "say": "जैसे कोई गाना आधा सुनकर रुक जाए, तो पूरे दिन वही धुन दिमाग में घूमती रहती है।",
+        "caption": "Jaise koi gaana aadha sunkar ruk jaaye, to poore din wahi dhun dimaag mein ghoomti rehti hai.",
+        "label": "Aadhi dhun",
+        "image": "a half finished musical staff glowing with looping notes around a head",
+        "keywords": [
+          "music",
+          "loop"
+        ]
+      },
+      {
         "say": "और अगर काम का बोझ दिमाग पर है, तो उसे लिख डालो और उसकी एक योजना बना लो। मन हल्का हो जाएगा।",
         "caption": "Aur agar kaam ka bojh dimaag par hai, to use likh daalo aur uski ek yojana bana lo. Mann halka ho jaayega.",
         "label": "Plan likho",
@@ -2410,6 +3000,16 @@
         "keywords": [
           "hourglass",
           "sand"
+        ]
+      },
+      {
+        "say": "आज एक अधूरा काम चुनो और उसे पूरा करने का सिर्फ़ पहला छोटा कदम तय करो।",
+        "caption": "Aaj ek adhoora kaam chuno aur use poora karne ka sirf pehla chhota kadam tay karo.",
+        "label": "Pehla kadam",
+        "image": "a half finished puzzle with the next glowing piece in a hand",
+        "keywords": [
+          "puzzle",
+          "piece"
         ]
       },
       {
@@ -2474,6 +3074,16 @@
         ]
       },
       {
+        "say": "जैसे शादी में खाना शानदार था, पर विदाई के समय भारी भीड़ और देरी हुई। तब लोग अक्सर वही आख़िरी अनुभव याद रखते हैं।",
+        "caption": "Jaise shaadi mein khaana shaandaar tha, par vidaai ke samay bhaari bheed aur deri hui. Tab log aksar wahi aakhri anubhav yaad rakhte hain.",
+        "label": "Shaadi ka ant",
+        "image": "a wedding hall with a long crowded exit and one dim lantern",
+        "keywords": [
+          "wedding",
+          "crowd"
+        ]
+      },
+      {
         "say": "काम में भी यही होता है। प्रेज़ेंटेशन या इंटरव्यू का अंत मज़बूत रखो, उसकी छाप लंबी रहेगी।",
         "caption": "Kaam mein bhi yahi hota hai. Presentation ya interview ka ant mazboot rakho, uski chhaap lambi rahegi.",
         "label": "Mazboot ant",
@@ -2491,6 +3101,16 @@
         "keywords": [
           "polaroid",
           "bright"
+        ]
+      },
+      {
+        "say": "आज किसी बातचीत या काम का अंत जानबूझकर अच्छा रखो, जैसे धन्यवाद कहकर या मुस्कुराकर।",
+        "caption": "Aaj kisi baatcheet ya kaam ka ant jaanbujhkar achha rakho, jaise dhanyavaad kahkar ya muskuraakar.",
+        "label": "Achha ant",
+        "image": "a figure waving goodbye with a warm glowing smile",
+        "keywords": [
+          "goodbye",
+          "smile"
         ]
       },
       {
@@ -2555,6 +3175,16 @@
         ]
       },
       {
+        "say": "जैसे सौ अच्छे कमेंट के बीच एक बुरा कमेंट पूरी रात परेशान कर देता है।",
+        "caption": "Jaise sau achhe comment ke beech ek bura comment poori raat pareshaan kar deta hai.",
+        "label": "Ek bura comment",
+        "image": "a screen of many glowing hearts and one dark comment looming",
+        "keywords": [
+          "comments",
+          "dark"
+        ]
+      },
+      {
         "say": "रोज़ रात को तीन अच्छी बातें लिखो जो आज हुईं। ये आदत दिमाग को संतुलन देती है।",
         "caption": "Roz raat ko teen achhi baatein likho jo aaj hui. Ye aadat dimaag ko santulan deti hai.",
         "label": "3 achhi baatein",
@@ -2572,6 +3202,16 @@
         "keywords": [
           "scale",
           "balance"
+        ]
+      },
+      {
+        "say": "आज किसी की तारीफ़ सुनकर उसे कम से कम एक मिनट के लिए महसूस करो। उसे जल्दी मत भूलो।",
+        "caption": "Aaj kisi ki taareef sunkar use kam se kam ek minute ke liye mehsoos karo. Use jaldi mat bhoolo.",
+        "label": "Taareef sambhalo",
+        "image": "a figure holding a small glowing star close to their chest",
+        "keywords": [
+          "star",
+          "compliment"
         ]
       },
       {
@@ -2636,6 +3276,16 @@
         ]
       },
       {
+        "say": "जैसे नई गाड़ी का पहला हफ़्ता बहुत रोमांचक होता है, पर कुछ महीनों में वो रोज़ की गाड़ी बन जाती है।",
+        "caption": "Jaise nayi gaadi ka pehla hafta bahut romanchak hota hai, par kuch mahinon mein wo roz ki gaadi ban jaati hai.",
+        "label": "Nayi gaadi",
+        "image": "a shiny new car slowly fading to an ordinary gray one over time",
+        "keywords": [
+          "car",
+          "fade"
+        ]
+      },
+      {
         "say": "अनुभवों पर खर्च करने से अक्सर ज़्यादा देर तक खुशी रहती है, क्योंकि यादें हमारे साथ रहती हैं।",
         "caption": "Anubhavon par kharch karne se aksar zyada der tak khushi rehti hai, kyunki yaadein hamare saath rehti hain.",
         "label": "Anubhav ki khushi",
@@ -2653,6 +3303,16 @@
         "keywords": [
           "glasses",
           "bright"
+        ]
+      },
+      {
+        "say": "आज उन तीन चीज़ों को याद करो जिनके लिए आप कभी तरसते थे और अब आपके पास हैं।",
+        "caption": "Aaj un teen cheezon ko yaad karo jinke liye aap kabhi tarasate the aur ab aapke paas hain.",
+        "label": "Jo mila",
+        "image": "three glowing items that once looked far away now close at hand",
+        "keywords": [
+          "gratitude",
+          "items"
         ]
       },
       {
@@ -2717,6 +3377,16 @@
         ]
       },
       {
+        "say": "जैसे कोई देर रात ऑफ़िस का काम माँगे और आप हर बार हाँ कर दो। तब आपकी शामें और आराम धीरे धीरे छिन जाते हैं।",
+        "caption": "Jaise koi der raat office ka kaam maange aur aap har baar haan kar do. Tab aapki shaamein aur aaram dheere dheere chhin jaate hain.",
+        "label": "Raat ka kaam",
+        "image": "a figure at a late night desk with a dim window and a clock past midnight",
+        "keywords": [
+          "night",
+          "desk"
+        ]
+      },
+      {
         "say": "हर बात के लिए सफ़ाई देना ज़रूरी नहीं। छोटा और साफ़ जवाब अक्सर सबसे असरदार होता है।",
         "caption": "Har baat ke liye safaai dena zaroori nahi. Chhota aur saaf jawab aksar sabse asardaar hota hai.",
         "label": "Chhota jawab",
@@ -2734,6 +3404,16 @@
         "keywords": [
           "circle",
           "respect"
+        ]
+      },
+      {
+        "say": "आज किसी छोटी बात पर विनम्रता से ना कहने का अभ्यास करो।",
+        "caption": "Aaj kisi chhoti baat par vinamrata se na kehne ka abhyaas karo.",
+        "label": "Ek na",
+        "image": "a gentle glowing hand held up politely",
+        "keywords": [
+          "hand",
+          "polite"
         ]
       },
       {
@@ -2797,6 +3477,16 @@
         ]
       },
       {
+        "say": "जैसे आप ट्रैफ़िक में फँसे हैं। ट्रैफ़िक आपके हाथ में नहीं, पर शांत रहना और अगली बार जल्दी निकलना आपके हाथ में है।",
+        "caption": "Jaise aap traffic mein phanse hain. Traffic aapke haath mein nahi, par shaant rehna aur agli baar jaldi nikalna aapke haath mein hai.",
+        "label": "Traffic ka example",
+        "image": "a calm figure in a car surrounded by glowing traffic lights",
+        "keywords": [
+          "traffic",
+          "calm"
+        ]
+      },
+      {
         "say": "पर ये मत भूलो कि कुछ चीज़ें सच में हमारे हाथ में नहीं होतीं। इसलिए जो बदल सकते हो, उस पर ध्यान दो।",
         "caption": "Par ye mat bhoolo ki kuch cheezein sach mein hamare haath mein nahi hotin. Isliye jo badal sakte ho, us par dhyaan do.",
         "label": "Jo badal sako",
@@ -2814,6 +3504,16 @@
         "keywords": [
           "compass",
           "storm"
+        ]
+      },
+      {
+        "say": "आज एक परेशानी लिखो और दो कॉलम बनाओ। क्या मेरे हाथ में है और क्या नहीं।",
+        "caption": "Aaj ek pareshaani likho aur do column banao. Kya mere haath mein hai aur kya nahi.",
+        "label": "Do column",
+        "image": "a notebook split into two glowing columns inside and outside control",
+        "keywords": [
+          "notebook",
+          "columns"
         ]
       },
       {
@@ -2878,6 +3578,16 @@
         ]
       },
       {
+        "say": "जैसे किसी विवाद में कोई तुरंत जवाब देने के बजाय कहता है कि मुझे सोचने दो। उसकी बात ज़्यादा वज़नदार लगती है।",
+        "caption": "Jaise kisi vivaad mein koi turant jawab dene ke bajaay kehta hai ki mujhe sochne do. Uski baat zyada wazandaar lagti hai.",
+        "label": "Sochne do",
+        "image": "a figure with a thoughtful hand on chin while others argue in the background",
+        "keywords": [
+          "thinking",
+          "argument"
+        ]
+      },
+      {
         "say": "पर चुप्पी का मतलब हर बात पर चुप रहना भी नहीं है। गलत के सामने चुप रहना ताक़त नहीं, पीछे हटना है।",
         "caption": "Par chuppi ka matlab har baat par chup rehna bhi nahi hai. Galat ke saamne chup rehna taaqat nahi, peeche hatna hai.",
         "label": "Sahi samay",
@@ -2895,6 +3605,16 @@
         "keywords": [
           "hourglass",
           "speech"
+        ]
+      },
+      {
+        "say": "आज किसी सवाल का जवाब देने से पहले दो सेकंड रुको, और देखो कि कैसा लगता है।",
+        "caption": "Aaj kisi sawaal ka jawab dene se pehle do second ruko, aur dekho ki kaisa lagta hai.",
+        "label": "2 second pause",
+        "image": "a small glowing clock paused at two seconds",
+        "keywords": [
+          "pause",
+          "clock"
         ]
       },
       {
@@ -2959,6 +3679,16 @@
         ]
       },
       {
+        "say": "जैसे कोई दुकानदार जो हमेशा सही तौलता है, उसके पास लोग दूसरे शहर से भी आते हैं।",
+        "caption": "Jaise koi dukaandaar jo hamesha sahi taulta hai, uske paas log doosre shehar se bhi aate hain.",
+        "label": "Imaandaar dukaan",
+        "image": "a market shop with a glowing balance and a long line of customers",
+        "keywords": [
+          "shop",
+          "balance"
+        ]
+      },
+      {
         "say": "जब कोई आपकी गैरमौजूदगी में आपकी तारीफ़ करे, तो समझो आपकी साख मज़बूत है।",
         "caption": "Jab koi aapki gair maujoodgi mein aapki taareef kare, to samjho aapki saakh mazboot hai.",
         "label": "Peeth peeche",
@@ -2976,6 +3706,16 @@
         "keywords": [
           "gardener",
           "tree"
+        ]
+      },
+      {
+        "say": "आज किसी को दिया हुआ एक छोटा वादा समय पर निभाओ।",
+        "caption": "Aaj kisi ko diya hua ek chhota vaada samay par nibhao.",
+        "label": "Vaada nibhao",
+        "image": "a figure handing over a promised item on time with a glowing clock",
+        "keywords": [
+          "promise",
+          "clock"
         ]
       },
       {
@@ -3040,6 +3780,16 @@
         ]
       },
       {
+        "say": "जैसे टीम मीटिंग में एक इंसान कहता है कि आप सब गलत हो, और दूसरा कहता है कि मेरा नज़रिया ये है, आपका क्या है?",
+        "caption": "Jaise team meeting mein ek insaan kehta hai ki aap sab galat ho, aur doosra kehta hai ki mera nazariya ye hai, aapka kya hai?",
+        "label": "Meeting ka farq",
+        "image": "two speakers at a table one pointing sharply and one with an open palm",
+        "keywords": [
+          "meeting",
+          "gesture"
+        ]
+      },
+      {
         "say": "आत्मविश्वासी लोग दूसरों की सफलता में भी खुश होते हैं, क्योंकि उन्हें खुद पर यक़ीन होता है।",
         "caption": "Aatmvishwasi log doosron ki safalta mein bhi khush hote hain, kyunki unhe khud par yakeen hota hai.",
         "label": "Doosron ki jeet",
@@ -3057,6 +3807,16 @@
         "keywords": [
           "stones",
           "balance"
+        ]
+      },
+      {
+        "say": "आज किसी बहस में अपनी बात रखने के बाद पूछो कि आपकी क्या राय है।",
+        "caption": "Aaj kisi bahas mein apni baat rakhne ke baad poochho ki aapki kya raay hai.",
+        "label": "Raay poochho",
+        "image": "a figure with open palms inviting another to speak",
+        "keywords": [
+          "open palms",
+          "invite"
         ]
       },
       {
@@ -3121,6 +3881,16 @@
         ]
       },
       {
+        "say": "जैसे कोई खिलाड़ी रोज़ सुबह अभ्यास करता है, चाहे मौसम कैसा भी हो। उसकी जीत मन से नहीं, आदत से आती है।",
+        "caption": "Jaise koi khiladi roz subah abhyaas karta hai, chahe mausam kaisa bhi ho. Uski jeet mann se nahi, aadat se aati hai.",
+        "label": "Khiladi ki aadat",
+        "image": "an athlete training at dawn in light rain with glowing determination",
+        "keywords": [
+          "athlete",
+          "dawn"
+        ]
+      },
+      {
         "say": "माहौल भी मदद करता है। जो चीज़ें ध्यान भटकाती हैं, उन्हें अपनी नज़र से दूर रखो।",
         "caption": "Maahaul bhi madad karta hai. Jo cheezein dhyaan bhatkaati hain, unhe apni nazar se door rakho.",
         "label": "Maahaul",
@@ -3138,6 +3908,16 @@
         "keywords": [
           "flag",
           "mountain"
+        ]
+      },
+      {
+        "say": "आज एक काम चुनो जिसे आप चाहे मन हो या न हो, सिर्फ़ दस मिनट करोगे।",
+        "caption": "Aaj ek kaam chuno jise aap chahe mann ho ya na ho, sirf das minute karoge.",
+        "label": "10 minute",
+        "image": "a small glowing ten minute timer beside a pair of sneakers",
+        "keywords": [
+          "timer",
+          "sneakers"
         ]
       },
       {
@@ -3202,6 +3982,16 @@
         ]
       },
       {
+        "say": "जैसे किसान बीज बोकर रोज़ मिट्टी नहीं खोदता। वो पानी देता है और इंतज़ार करता है।",
+        "caption": "Jaise kisaan beej bokar roz mitti nahi khodta. Wo paani deta hai aur intezaar karta hai.",
+        "label": "Kisaan ka sabr",
+        "image": "a farmer watering a small seedling at sunrise",
+        "keywords": [
+          "farmer",
+          "seedling"
+        ]
+      },
+      {
         "say": "धैर्य का मतलब रुक जाना नहीं है। इसका मतलब है लगातार काम करते हुए नतीजे का इंतज़ार करना।",
         "caption": "Dhairya ka matlab ruk jaana nahi hai. Iska matlab hai lagaatar kaam karte hue nateeje ka intezaar karna.",
         "label": "Rukna nahi",
@@ -3219,6 +4009,16 @@
         "keywords": [
           "tree",
           "fruit"
+        ]
+      },
+      {
+        "say": "आज किसी जल्दी वाली चीज़ में एक गहरी साँस लो और खुद से कहो कि सही समय पर सब होगा।",
+        "caption": "Aaj kisi jaldi wali cheez mein ek gehri saans lo aur khud se kaho ki sahi samay par sab hoga.",
+        "label": "Ek gehri saans",
+        "image": "a calm figure breathing under a soft golden sky",
+        "keywords": [
+          "breath",
+          "calm"
         ]
       },
       {
@@ -3283,6 +4083,16 @@
         ]
       },
       {
+        "say": "जैसे जिम की सदस्यता बेचने वाला कहे कि रोज़ सिर्फ़ तीस रुपये, बजाय ये कहने के कि साल के ग्यारह हज़ार।",
+        "caption": "Jaise gym ki sadasyata bechne wala kahe ki roz sirf tees rupaye, bajaay ye kehne ke ki saal ke gyarah hazaar.",
+        "label": "Gym ka example",
+        "image": "a gym sign with a small daily price glowing and a large yearly price hidden",
+        "keywords": [
+          "gym",
+          "price"
+        ]
+      },
+      {
         "say": "सवाल को दोनों तरह से पलटकर देखो। अगर अलग शब्दों में सुनने पर भी फ़ैसला वही रहे, तो वो पक्का है।",
         "caption": "Sawaal ko dono tarah se palatkar dekho. Agar alag shabdon mein sunne par bhi faisla wahi rahe, to wo pakka hai.",
         "label": "Palatkar dekho",
@@ -3300,6 +4110,16 @@
         "keywords": [
           "speaker",
           "words"
+        ]
+      },
+      {
+        "say": "आज एक बात को दो अलग तरह से कहकर देखो, और महसूस करो कि दोनों में अंतर क्यों लगता है।",
+        "caption": "Aaj ek baat ko do alag tarah se kehkar dekho, aur mehsoos karo ki dono mein antar kyun lagta hai.",
+        "label": "Do tareeke",
+        "image": "two glowing speech bubbles holding the same idea in different colors",
+        "keywords": [
+          "speech",
+          "compare"
         ]
       },
       {
@@ -3364,6 +4184,16 @@
         ]
       },
       {
+        "say": "जैसे कोई टीम लीडर खुद देर तक रुककर टीम की मदद करता है। तब टीम भी उसके लिए जी जान लगा देती है।",
+        "caption": "Jaise koi team leader khud der tak rukkar team ki madad karta hai. Tab team bhi uske liye jee jaan laga deti hai.",
+        "label": "Leader ki madad",
+        "image": "a team leader helping a teammate at a late desk with warm light",
+        "keywords": [
+          "leader",
+          "teamwork"
+        ]
+      },
+      {
         "say": "पर इसका मतलब कमज़ोर होना नहीं है। सही फ़ैसले और कड़े निर्णय भी लेने होते हैं, पर इरादा सबका भला होता है।",
         "caption": "Par iska matlab kamzor hona nahi hai. Sahi faisle aur kade nirnay bhi lene hote hain, par iraada sabka bhala hota hai.",
         "label": "Majbooti bhi",
@@ -3381,6 +4211,16 @@
         "keywords": [
           "lift",
           "platform"
+        ]
+      },
+      {
+        "say": "आज अपने किसी साथी से पूछो कि मैं आपकी कैसे मदद कर सकता हूँ।",
+        "caption": "Aaj apne kisi saathi se poochho ki main aapki kaise madad kar sakta hoon.",
+        "label": "Madad poochho",
+        "image": "a figure extending an open hand toward a colleague",
+        "keywords": [
+          "help",
+          "colleague"
         ]
       },
       {
@@ -3444,6 +4284,16 @@
         ]
       },
       {
+        "say": "जैसे कोई शिक्षक हर छात्र का नाम याद रखता है। इससे हर बच्चे को लगता है कि वो ख़ास है।",
+        "caption": "Jaise koi shikshak har chhatra ka naam yaad rakhta hai. Isse har bachche ko lagta hai ki wo khaas hai.",
+        "label": "Naam yaad rakhna",
+        "image": "a teacher smiling at students each with a small glowing name tag",
+        "keywords": [
+          "teacher",
+          "nametag"
+        ]
+      },
+      {
         "say": "आत्मविश्वास यानी शांत और स्थिर रहना, भले ही अंदर थोड़ी घबराहट हो।",
         "caption": "Aatmvishwas yaani shaant aur sthir rehna, bhale hi andar thodi ghabrahat ho.",
         "label": "Sthirta",
@@ -3461,6 +4311,16 @@
         "keywords": [
           "stone",
           "gem"
+        ]
+      },
+      {
+        "say": "आज किसी से बात करते समय उसका नाम लो और पूरा ध्यान उसे दो।",
+        "caption": "Aaj kisi se baat karte samay uska naam lo aur poora dhyaan use do.",
+        "label": "Naam lo",
+        "image": "two figures in friendly conversation with a glowing name above one",
+        "keywords": [
+          "name",
+          "conversation"
         ]
       },
       {
@@ -3525,6 +4385,16 @@
         ]
       },
       {
+        "say": "जैसे सैलरी की बातचीत में कंपनी को कम लागत और कर्मचारी को सीखने का मौका चाहिए। दोनों का तालमेल बैठ सकता है।",
+        "caption": "Jaise salary ki baatcheet mein company ko kam laagat aur karmchaari ko seekhne ka mauka chahiye. Dono ka taalmel baith sakta hai.",
+        "label": "Salary ki baat",
+        "image": "two glowing puzzle pieces fitting together across a table",
+        "keywords": [
+          "puzzle",
+          "deal"
+        ]
+      },
+      {
         "say": "अपनी सीमा पहले तय रखो। यानी आप कितना छोड़ सकते हो और कहाँ पर पीछे नहीं हटोगे।",
         "caption": "Apni seema pehle tay rakho. Yaani aap kitna chhod sakte ho aur kahan par peeche nahi hatoge.",
         "label": "Apni seema",
@@ -3542,6 +4412,16 @@
         "keywords": [
           "handshake",
           "bridge"
+        ]
+      },
+      {
+        "say": "आज अगली बातचीत में पहले पूछो कि आपके लिए सबसे ज़रूरी बात क्या है।",
+        "caption": "Aaj agli baatcheet mein pehle poochho ki aapke liye sabse zaroori baat kya hai.",
+        "label": "Pehle poochho",
+        "image": "a figure leaning forward with an open notebook asking a question",
+        "keywords": [
+          "notebook",
+          "question"
         ]
       },
       {
@@ -3606,6 +4486,16 @@
         ]
       },
       {
+        "say": "जैसे कोई ऑनलाइन बहस में जानबूझकर भड़काने वाला कमेंट करे। जवाब देने से बात और बढ़ती है।",
+        "caption": "Jaise koi online bahas mein jaanbujhkar bhadkaane wala comment kare. Jawab dene se baat aur badhti hai.",
+        "label": "Online bahas",
+        "image": "a phone screen with a fiery comment and a calm hand hovering over it",
+        "keywords": [
+          "comment",
+          "calm"
+        ]
+      },
+      {
         "say": "अगर जवाब देना ज़रूरी भी हो, तो तथ्य रखो, ऊँची आवाज़ नहीं। यही आपको ऊपर रखता है।",
         "caption": "Agar jawab dena zaroori bhi ho, to tathya rakho, oonchi awaaz nahi. Yahi aapko upar rakhta hai.",
         "label": "Tathya rakho",
@@ -3623,6 +4513,16 @@
         "keywords": [
           "pearl",
           "hand"
+        ]
+      },
+      {
+        "say": "आज जब कोई भड़काए तो पहले एक गहरी साँस लो और सिर्फ़ तथ्य कहो।",
+        "caption": "Aaj jab koi bhadkaye to pehle ek gehri saans lo aur sirf tathya kaho.",
+        "label": "Saans aur tathya",
+        "image": "a figure breathing slowly with glowing facts floating nearby",
+        "keywords": [
+          "breath",
+          "facts"
         ]
       },
       {
@@ -3687,6 +4587,16 @@
         ]
       },
       {
+        "say": "जैसे परीक्षा से पहले जो छात्र पुराने प्रश्नपत्र हल करके जाता है, वो परीक्षा हॉल में कम घबराता है।",
+        "caption": "Jaise pariksha se pehle jo chhatra purane prashnapatra hal karke jaata hai, wo pariksha hall mein kam ghabraata hai.",
+        "label": "Prashnapatra",
+        "image": "a student confidently walking into an exam hall holding solved papers",
+        "keywords": [
+          "student",
+          "exam"
+        ]
+      },
+      {
         "say": "योजना बी भी तैयार रखो। अगर पहली योजना न चले, तो दूसरी तैयार हो।",
         "caption": "Yojana B bhi taiyaar rakho. Agar pehli yojana na chale, to doosri taiyaar ho.",
         "label": "Plan B",
@@ -3704,6 +4614,16 @@
         "keywords": [
           "archer",
           "target"
+        ]
+      },
+      {
+        "say": "आज अपने अगले बड़े काम के लिए तीन संभावित सवाल लिखो और उनके जवाब सोचो।",
+        "caption": "Aaj apne agle bade kaam ke liye teen sambhavit sawaal likho aur unke jawab socho.",
+        "label": "3 sawaal",
+        "image": "a notebook with three glowing questions and short answers",
+        "keywords": [
+          "notebook",
+          "questions"
         ]
       },
       {
@@ -3768,6 +4688,16 @@
         ]
       },
       {
+        "say": "जैसे किसी पुराने सहपाठी ने एक संदेश भेजकर आपको नई नौकरी की जानकारी दी, जो करीबी दोस्त को पता ही नहीं थी।",
+        "caption": "Jaise kisi purane sahpaathi ne ek sandesh bhejkar aapko nayi naukri ki jaankari di, jo kareebi dost ko pata hi nahi thi.",
+        "label": "Purana sahpaathi",
+        "image": "a phone message from an old classmate glowing with a job opening",
+        "keywords": [
+          "message",
+          "classmate"
+        ]
+      },
+      {
         "say": "बस हर बार कुछ माँगने के इरादे से मत जाओ। पहले दूसरों की मदद करना सीखो।",
         "caption": "Bas har baar kuch maangne ke iraade se mat jao. Pehle doosron ki madad karna seekho.",
         "label": "Pehle do",
@@ -3785,6 +4715,16 @@
         "keywords": [
           "door",
           "hall"
+        ]
+      },
+      {
+        "say": "आज एक पुराने जान पहचान वाले को हालचाल पूछने का संदेश भेजो।",
+        "caption": "Aaj ek purane jaan pehchaan wale ko haalchaal poochhne ka sandesh bhejo.",
+        "label": "Ek message",
+        "image": "a figure typing a friendly message on a phone with warm light",
+        "keywords": [
+          "message",
+          "friendly"
         ]
       },
       {
@@ -3849,6 +4789,16 @@
         ]
       },
       {
+        "say": "जैसे कोई कहता है कि हमारी सेवा बहुत अच्छी है, और कोई सुनाता है कि कैसे एक ग्राहक की मदद की गई। दूसरी बात ज़्यादा याद रहती है।",
+        "caption": "Jaise koi kehta hai ki hamari seva bahut achhi hai, aur koi sunata hai ki kaise ek grahak ki madad ki gayi. Doosri baat zyada yaad rehti hai.",
+        "label": "Dono mein farq",
+        "image": "two speakers one with a plain statement and one with a glowing story scene",
+        "keywords": [
+          "speaker",
+          "story"
+        ]
+      },
+      {
         "say": "अपनी असली कहानियाँ सुनाने से लोग आपसे ज़्यादा जुड़ते हैं, क्योंकि वो असली और अपनी लगती हैं।",
         "caption": "Apni asli kahaaniyan sunaane se log aapse zyada judte hain, kyunki wo asli aur apni lagti hain.",
         "label": "Asli kahaani",
@@ -3866,6 +4816,16 @@
         "keywords": [
           "heart",
           "book"
+        ]
+      },
+      {
+        "say": "आज अपनी एक छोटी सी असली कहानी तीन वाक्यों में लिखो।",
+        "caption": "Aaj apni ek chhoti si asli kahaani teen vaakyon mein likho.",
+        "label": "3 vaakya",
+        "image": "a notebook with a short story written in three glowing lines",
+        "keywords": [
+          "notebook",
+          "story"
         ]
       },
       {
@@ -3930,6 +4890,16 @@
         ]
       },
       {
+        "say": "जैसे कोई हर महीने सैलरी आते ही सब खर्च कर दे, और कोई पहले एक हिस्सा बचाकर बाकी खर्च करे। लंबे समय में फ़र्क़ बड़ा होता है।",
+        "caption": "Jaise koi har mahine salary aate hi sab kharch kar de, aur koi pehle ek hissa bachakar baaki kharch kare. Lambe samay mein farq bada hota hai.",
+        "label": "Bachat ka example",
+        "image": "two jars one empty and one slowly filling with glowing coins",
+        "keywords": [
+          "jars",
+          "savings"
+        ]
+      },
+      {
         "say": "छोटे उपाय आज़माओ। जैसे खरीदारी से पहले चौबीस घंटे रुको, या बड़े लक्ष्य को इनाम वाले चरणों में बाँटो।",
         "caption": "Chhote upaay aazmaao. Jaise khareedaari se pehle chaubees ghante ruko, ya bade lakshya ko inaam wale charanon mein baanto.",
         "label": "Chhote upaay",
@@ -3947,6 +4917,16 @@
         "keywords": [
           "bird",
           "sunrise"
+        ]
+      },
+      {
+        "say": "आज किसी एक चाहत को चौबीस घंटे के लिए टालकर देखो। फिर देखो कि अब भी वो उतनी ज़रूरी लगती है क्या।",
+        "caption": "Aaj kisi ek chaahat ko chaubees ghante ke liye taalkar dekho. Phir dekho ki ab bhi wo utni zaroori lagti hai kya.",
+        "label": "24 ghante",
+        "image": "a clock showing a full day beside a glowing wish bubble",
+        "keywords": [
+          "clock",
+          "wish"
         ]
       },
       {
@@ -4011,6 +4991,16 @@
         ]
       },
       {
+        "say": "जैसे कोई पहली बार सबके सामने अपनी राय रखता है और हाथ काँपते हैं। फिर भी वो बोलता है। यही हिम्मत है।",
+        "caption": "Jaise koi pehli baar sabke saamne apni raay rakhta hai aur haath kaanpte hain. Phir bhi wo bolta hai. Yahi himmat hai.",
+        "label": "Kaanpte haath",
+        "image": "a figure with trembling hands holding a glowing microphone",
+        "keywords": [
+          "microphone",
+          "courage"
+        ]
+      },
+      {
         "say": "हिम्मत का मतलब डर न होना नहीं है। इसका मतलब है डर के साथ भी कदम बढ़ाना।",
         "caption": "Himmat ka matlab darr na hona nahi hai. Iska matlab hai darr ke saath bhi kadam badhaana.",
         "label": "Himmat",
@@ -4028,6 +5018,16 @@
         "keywords": [
           "footprints",
           "horizon"
+        ]
+      },
+      {
+        "say": "आज एक ऐसा काम करो जिसे आप लोग क्या कहेंगे के डर से टाल रहे थे।",
+        "caption": "Aaj ek aisa kaam karo jise aap log kya kahenge ke darr se taal rahe the.",
+        "label": "Ek kaam",
+        "image": "a figure opening a door to a bright room with a determined step",
+        "keywords": [
+          "door",
+          "step"
         ]
       },
       {
@@ -4091,6 +5091,16 @@
         ]
       },
       {
+        "say": "जैसे कोई इंजीनियर जो अपनी बात आसान भाषा में समझा भी सकता है। उसकी माँग कई जगह होती है, क्योंकि ऐसे लोग कम हैं।",
+        "caption": "Jaise koi engineer jo apni baat aasaan bhaasha mein samjha bhi sakta hai. Uski maang kai jagah hoti hai, kyunki aise log kam hain.",
+        "label": "Engineer ka example",
+        "image": "an engineer with a glowing microphone explaining a blueprint to a crowd",
+        "keywords": [
+          "engineer",
+          "speaker"
+        ]
+      },
+      {
         "say": "हर हफ़्ते थोड़ा समय सीखने को दो। रोज़ बीस मिनट भी एक साल में बड़ा फ़र्क़ ला देते हैं।",
         "caption": "Har hafte thoda samay seekhne ko do. Roz bees minute bhi ek saal mein bada farq la dete hain.",
         "label": "Roz 20 minute",
@@ -4108,6 +5118,16 @@
         "keywords": [
           "key",
           "door"
+        ]
+      },
+      {
+        "say": "आज अपने दो कौशल लिखो और सोचो कि इन्हें जोड़कर क्या नया हो सकता है।",
+        "caption": "Aaj apne do kaushal likho aur socho ki inhe jodkar kya naya ho sakta hai.",
+        "label": "Do kaushal",
+        "image": "two glowing skill icons merging into a single new shape",
+        "keywords": [
+          "skills",
+          "merge"
         ]
       },
       {
@@ -4172,6 +5192,16 @@
         ]
       },
       {
+        "say": "जैसे कोई कहे कि तुम बहुत संवेदनशील हो, मैंने ऐसा कुछ कहा ही नहीं था। जबकि आपको साफ़ याद है कि कहा था।",
+        "caption": "Jaise koi kahe ki tum bahut samvedanshil ho, maine aisa kuch kaha hi nahi tha. Jabki aapko saaf yaad hai ki kaha tha.",
+        "label": "Aisa kuch kaha nahi",
+        "image": "a figure holding a memory bubble while another denies with a dismissive gesture",
+        "keywords": [
+          "denial",
+          "memory"
+        ]
+      },
+      {
         "say": "किसी भरोसेमंद दोस्त या परिवार से बात करो। बाहरी नज़रिया अक्सर हालात को साफ़ कर देता है।",
         "caption": "Kisi bharosemand dost ya parivaar se baat karo. Baahri nazariya aksar halaat ko saaf kar deta hai.",
         "label": "Baat karo",
@@ -4189,6 +5219,16 @@
         "keywords": [
           "hand",
           "door"
+        ]
+      },
+      {
+        "say": "आज अपनी किसी ज़रूरी बातचीत की तारीख और मुख्य बातें डायरी में लिख लो।",
+        "caption": "Aaj apni kisi zaroori baatcheet ki taareekh aur mukhya baatein diary mein likh lo.",
+        "label": "Diary rakho",
+        "image": "a diary with a glowing date and notes beside a pen",
+        "keywords": [
+          "diary",
+          "notes"
         ]
       },
       {
@@ -4253,6 +5293,16 @@
         ]
       },
       {
+        "say": "जैसे कोई दोस्त हर बार आपके सपनों का मज़ाक उड़ाए। इसके बाद आपको अपने ऊपर भरोसा कम लगने लगता है।",
+        "caption": "Jaise koi dost har baar aapke sapnon ka mazaak udaaye. Iske baad aapko apne upar bharosa kam lagne lagta hai.",
+        "label": "Sapno ka mazaak",
+        "image": "a figure with a glowing dream balloon being poked by a sharp pin",
+        "keywords": [
+          "balloon",
+          "pin"
+        ]
+      },
+      {
         "say": "दूरी बनाना या सीमाएँ तय करना गलत नहीं है। आप शांति से कह सकते हो कि मैं इस बारे में बात नहीं करूँगा।",
         "caption": "Doori banana ya seemaayein tay karna galat nahi hai. Aap shaanti se keh sakte ho ki main is baare mein baat nahi karunga.",
         "label": "Seema tay karo",
@@ -4270,6 +5320,16 @@
         "keywords": [
           "pearl",
           "box"
+        ]
+      },
+      {
+        "say": "आज उन तीन लोगों की सूची बनाओ जिनसे मिलकर आपको अच्छा लगता है। उनके साथ थोड़ा और समय बिताओ।",
+        "caption": "Aaj un teen logon ki soochi banao jinse milkar aapko achha lagta hai. Unke saath thoda aur samay bitao.",
+        "label": "3 achhe log",
+        "image": "three glowing figures standing together in warm light",
+        "keywords": [
+          "friends",
+          "warm"
         ]
       },
       {
@@ -4334,6 +5394,16 @@
         ]
       },
       {
+        "say": "जैसे कोई मैनेजर अपने गलत फ़ैसले को सही ठहराने के लिए दूसरों को दोष दे। टीम का भरोसा धीरे धीरे घटता है।",
+        "caption": "Jaise koi manager apne galat faisle ko sahi thehraane ke liye doosron ko dosh de. Team ka bharosa dheere dheere ghatta hai.",
+        "label": "Manager ka example",
+        "image": "a manager pointing at others while a glowing trust meter drops",
+        "keywords": [
+          "manager",
+          "trust"
+        ]
+      },
+      {
         "say": "अगली बार आलोचना सुनो तो पहले साँस लो और पूछो कि इसमें मेरे काम की कोई बात है क्या।",
         "caption": "Agli baar aalochna suno to pehle saans lo aur poochho ki ismein mere kaam ki koi baat hai kya.",
         "label": "Kaam ki baat",
@@ -4351,6 +5421,16 @@
         "keywords": [
           "bamboo",
           "wind"
+        ]
+      },
+      {
+        "say": "आज अपनी एक गलती खुलकर मानो और कहो कि अगली बार मैं ऐसा करूँगा।",
+        "caption": "Aaj apni ek galti khulkar maano aur kaho ki agli baar main aisa karunga.",
+        "label": "Galti maano",
+        "image": "a figure bowing slightly with an open palm showing honesty",
+        "keywords": [
+          "honesty",
+          "bow"
         ]
       },
       {
@@ -4415,6 +5495,16 @@
         ]
       },
       {
+        "say": "जैसे कोई लेखक सुबह चार घंटे फ़ोन बंद करके लिखता है। वो उतना काम कर लेता है जितना दूसरे पूरे दिन में नहीं कर पाते।",
+        "caption": "Jaise koi lekhak subah chaar ghante phone band karke likhta hai. Wo utna kaam kar leta hai jitna doosre poore din mein nahi kar paate.",
+        "label": "Lekhak ki subah",
+        "image": "a writer at a quiet desk at sunrise with a silenced phone nearby",
+        "keywords": [
+          "writer",
+          "sunrise"
+        ]
+      },
+      {
         "say": "एक समय में सिर्फ़ एक काम करो। मल्टीटास्किंग असल में दिमाग को बार बार रीसेट करती रहती है।",
         "caption": "Ek samay mein sirf ek kaam karo. Multitasking asal mein dimaag ko baar baar reset karti rehti hai.",
         "label": "Ek hi kaam",
@@ -4432,6 +5522,16 @@
         "keywords": [
           "focus",
           "trail"
+        ]
+      },
+      {
+        "say": "आज नब्बे मिनट का एक फ़ोकस ब्लॉक तय करो और नोटिफ़िकेशन बंद रखो।",
+        "caption": "Aaj nabbe minute ka ek focus block tay karo aur notification band rakho.",
+        "label": "90 minute focus",
+        "image": "a glowing ninety minute timer beside a silent phone",
+        "keywords": [
+          "timer",
+          "silent"
         ]
       },
       {
@@ -4496,6 +5596,16 @@
         ]
       },
       {
+        "say": "जैसे कोई रोज़ बस दस नए शब्द सीखे। एक साल में उसके पास तीन हज़ार से ज़्यादा नए शब्द होंगे।",
+        "caption": "Jaise koi roz bas das naye shabd seekhe. Ek saal mein uske paas teen hazaar se zyada naye shabd honge.",
+        "label": "10 shabd roz",
+        "image": "a stack of notebooks growing taller day by day with glowing words",
+        "keywords": [
+          "notebooks",
+          "words"
+        ]
+      },
+      {
         "say": "अपनी प्रगति को एक कैलेंडर पर चिह्नित करो। लगातार टिकी हुई कड़ी देखकर प्रेरणा मिलती है।",
         "caption": "Apni pragati ko ek calendar par chihnit karo. Lagaatar tiki hui kadi dekhkar prerna milti hai.",
         "label": "Kadi na todo",
@@ -4513,6 +5623,16 @@
         "keywords": [
           "seed",
           "tree"
+        ]
+      },
+      {
+        "say": "आज एक छोटी आदत शुरू करो जिसे आप सात दिन तक निभा सको।",
+        "caption": "Aaj ek chhoti aadat shuru karo jise aap saat din tak nibha sako.",
+        "label": "7 din",
+        "image": "a calendar with seven glowing check marks in a row",
+        "keywords": [
+          "calendar",
+          "week"
         ]
       },
       {
@@ -4577,6 +5697,16 @@
         ]
       },
       {
+        "say": "जैसे कोई दुकानदार आपकी आँखों में देखकर कीमत बताए, तो वो ज़्यादा भरोसेमंद लगता है।",
+        "caption": "Jaise koi dukaandaar aapki aankhon mein dekhkar keemat bataye, to wo zyada bharosemand lagta hai.",
+        "label": "Dukaandaar",
+        "image": "a shopkeeper looking warmly at a customer across a counter",
+        "keywords": [
+          "shopkeeper",
+          "customer"
+        ]
+      },
+      {
         "say": "अगर आँखों में देखना कठिन लगे, तो सामने वाले की भौंहों के बीच देखने का अभ्यास करो।",
         "caption": "Agar aankhon mein dekhna kathin lage, to saamne wale ki bhauhon ke beech dekhne ka abhyaas karo.",
         "label": "Abhyaas",
@@ -4594,6 +5724,16 @@
         "keywords": [
           "gaze",
           "bridge"
+        ]
+      },
+      {
+        "say": "आज किसी बातचीत में तीन से चार सेकंड की सहज नज़र का अभ्यास करो।",
+        "caption": "Aaj kisi baatcheet mein teen se chaar second ki sahaj nazar ka abhyaas karo.",
+        "label": "3 se 4 second",
+        "image": "two figures exchanging a gentle gaze with a soft glowing line",
+        "keywords": [
+          "gaze",
+          "gentle"
         ]
       },
       {
@@ -4658,6 +5798,16 @@
         ]
       },
       {
+        "say": "जैसे कई मशहूर वक्ता भी पहली बार मंच पर पसीने से भीग गए थे। अभ्यास से वो सहज होते गए।",
+        "caption": "Jaise kai mashhoor vakta bhi pehli baar manch par paseene se bheeg gaye the. Abhyaas se wo sahaj hote gaye.",
+        "label": "Pehli baar",
+        "image": "a nervous speaker at a podium slowly transforming into a confident one",
+        "keywords": [
+          "speaker",
+          "podium"
+        ]
+      },
+      {
         "say": "धीमी गति से बोलो, और बीच में थोड़ा रुकने से मत डरो। विराम आपके शब्दों को वज़न देते हैं।",
         "caption": "Dheemi gati se bolo, aur beech mein thoda rukne se mat daro. Viraam aapke shabdon ko wazan dete hain.",
         "label": "Viraam",
@@ -4675,6 +5825,16 @@
         "keywords": [
           "stairs",
           "growth"
+        ]
+      },
+      {
+        "say": "आज खुद को आईने के सामने दो मिनट बोलते हुए रिकॉर्ड करो और ध्यान से देखो।",
+        "caption": "Aaj khud ko aaine ke saamne do minute bolte hue record karo aur dhyaan se dekho.",
+        "label": "Record karo",
+        "image": "a figure recording themselves speaking in front of a mirror",
+        "keywords": [
+          "record",
+          "mirror"
         ]
       },
       {
@@ -4738,6 +5898,16 @@
         ]
       },
       {
+        "say": "जैसे नए ऑफ़िस में शुरू में अनजान लगने वाले चेहरे कुछ हफ़्तों में दोस्त जैसे लगने लगते हैं।",
+        "caption": "Jaise naye office mein shuru mein anjaan lagne wale chehre kuch hafton mein dost jaise lagne lagte hain.",
+        "label": "Naya office",
+        "image": "unfamiliar faces turning warm and familiar over a series of glowing days",
+        "keywords": [
+          "faces",
+          "warm"
+        ]
+      },
+      {
         "say": "पर सिर्फ़ जान पहचान का मतलब ये नहीं कि चीज़ अच्छी है। भरोसा करने से पहले उसके गुणों को परखो।",
         "caption": "Par sirf jaan pehchaan ka matlab ye nahi ki cheez achhi hai. Bharosa karne se pehle uske gunon ko parkho.",
         "label": "Parakh bhi karo",
@@ -4755,6 +5925,16 @@
         "keywords": [
           "lightbulb",
           "thinking"
+        ]
+      },
+      {
+        "say": "आज किसी नई चीज़ को दूसरी बार आज़माओ। हो सकता है अब वो आपको ज़्यादा पसंद आए।",
+        "caption": "Aaj kisi nayi cheez ko doosri baar aazmaao. Ho sakta hai ab wo aapko zyada pasand aaye.",
+        "label": "Doosri baar",
+        "image": "a figure trying a new dish a second time with a smile",
+        "keywords": [
+          "dish",
+          "smile"
         ]
       },
       {
@@ -4819,6 +5999,16 @@
         ]
       },
       {
+        "say": "जैसे कोई रोज़ पाँच मिनट के लिए किताब पढ़ने का वादा करे और निभाए। एक महीने बाद उसे खुद पर ज़्यादा भरोसा होगा।",
+        "caption": "Jaise koi roz paanch minute ke liye kitaab padhne ka vaada kare aur nibhaye. Ek mahine baad use khud par zyada bharosa hoga.",
+        "label": "5 minute ka vaada",
+        "image": "a small book with a glowing bookmark and a calendar of checked days",
+        "keywords": [
+          "book",
+          "calendar"
+        ]
+      },
+      {
         "say": "अगर किसी दिन चूक जाओ, तो खुद को कोसो मत। अगले दिन फिर से शुरू करो, बस दो दिन लगातार मत छोड़ो।",
         "caption": "Agar kisi din chook jaao, to khud ko koso mat. Agle din phir se shuru karo, bas do din lagaatar mat chhodo.",
         "label": "Phir shuru karo",
@@ -4836,6 +6026,16 @@
         "keywords": [
           "circle",
           "trust"
+        ]
+      },
+      {
+        "say": "आज खुद से एक छोटा सा वादा करो और शाम तक उसे ज़रूर पूरा करो।",
+        "caption": "Aaj khud se ek chhota sa vaada karo aur shaam tak use zaroor poora karo.",
+        "label": "Aaj ka vaada",
+        "image": "a figure ticking a glowing checkmark on a small personal pledge",
+        "keywords": [
+          "pledge",
+          "checkmark"
         ]
       },
       {
