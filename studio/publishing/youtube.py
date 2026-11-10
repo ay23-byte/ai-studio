@@ -16,6 +16,10 @@ from studio.logs import get_logger
 log = get_logger(__name__)
 
 
+class YouTubeAuthError(RuntimeError):
+    """YouTube OAuth credentials cannot be refreshed for this account."""
+
+
 def _creds():
     try:
         from google.auth.transport.requests import Request
@@ -41,7 +45,30 @@ def _creds():
         client_id=config.YT_CLIENT_ID,
         client_secret=config.YT_CLIENT_SECRET,
     )
-    credentials.refresh(Request())
+    try:
+        credentials.refresh(Request())
+    except Exception as exc:
+        # Google returns invalid_grant when the refresh token was revoked or
+        # expired, or when it no longer matches this OAuth client. Retrying the
+        # upload cannot repair that state; make the required secret rotation
+        # explicit without echoing token/client details into Actions logs.
+        error_text = " ".join(str(part) for part in getattr(exc, "args", (exc,)))
+        if "invalid_grant" in error_text.casefold():
+            raise YouTubeAuthError(
+                "YouTube OAuth refresh token is invalid, revoked, or expired. "
+                "Re-authorise the intended YouTube channel with the same OAuth "
+                "client and the youtube scope, then replace the GitHub Actions "
+                "secret YT_REFRESH_TOKEN (and verify YT_CLIENT_ID/"
+                "YT_CLIENT_SECRET belong to that client). If the OAuth consent "
+                "screen is in Testing, move it to Production or issue a fresh "
+                "token regularly; testing-mode refresh tokens expire after "
+                "7 days. No video was uploaded."
+            ) from exc
+        raise YouTubeAuthError(
+            "Could not refresh YouTube OAuth credentials. Check that "
+            "YT_CLIENT_ID, YT_CLIENT_SECRET, and YT_REFRESH_TOKEN are a matching "
+            "set and that the OAuth client is still enabled. No video was uploaded."
+        ) from exc
     return credentials
 
 
