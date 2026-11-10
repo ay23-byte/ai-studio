@@ -184,7 +184,37 @@ def wait_processed(video_id: str, max_wait: int = 600) -> str:
     youtube = _youtube()
     started = time.time()
     while time.time() - started < max_wait:
-        listing = youtube.videos().list(part="status", id=video_id).execute()
+        try:
+            listing = youtube.videos().list(part="status", id=video_id).execute()
+        except Exception as exc:  # noqa: BLE001
+            # A video.insert request can succeed with the narrow youtube.upload
+            # scope, while the follow-up videos.list status poll needs read
+            # access. The upload id has already been persisted by daily.py;
+            # classify this as an OAuth configuration problem, not an upload
+            # failure that should cause the video to be uploaded again.
+            response = getattr(exc, "resp", None)
+            status_code = getattr(response, "status", None)
+            raw_content = getattr(exc, "content", b"")
+            if isinstance(raw_content, bytes):
+                error_body = raw_content.decode("utf-8", errors="replace")
+            else:
+                error_body = str(raw_content)
+            if status_code == 403 and (
+                "insufficientPermissions" in error_body
+                or "insufficient authentication scopes" in str(exc).casefold()
+            ):
+                raise YouTubeAuthError(
+                    "YouTube accepted the upload, but the OAuth refresh token "
+                    "does not include permission to read video processing status. "
+                    "The uploaded video id is already saved; do not upload it again. "
+                    "Re-authorise the intended channel using the same OAuth client "
+                    "with scope https://www.googleapis.com/auth/youtube, then replace "
+                    "the GitHub Actions secret YT_REFRESH_TOKEN. Keep the existing "
+                    "YT_CLIENT_ID and YT_CLIENT_SECRET unless the OAuth client itself "
+                    "was changed. After updating the secret, verify the existing "
+                    "video in YouTube Studio; the next run should process a new job."
+                ) from exc
+            raise
         items = listing.get("items", [])
         if not items:
             return "not_found"
