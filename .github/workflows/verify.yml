@@ -237,11 +237,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt -c constraints.txt
 
-      - name: edge-tts natural sample
+      - name: edge-tts Devanagari sample (the path that failed in make-shorts)
         continue-on-error: true
         run: |
           mkdir -p artifacts/live
-          python run.py voice "Namaste doston, aaj hum samjhenge ki inflation kya hota hai aur paise ki value kyun ghat jaati hai." \
+          python run.py voice "नमस्ते दोस्तों, आज हम समझेंगे कि महँगाई क्या होती है और पैसों की कीमत क्यों घट जाती है।" \
             -o artifacts/live/edge_natural.wav --engine edge --profile natural
 
       - name: edge-tts fast sample
