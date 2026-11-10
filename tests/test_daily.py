@@ -103,6 +103,48 @@ def test_invalid_youtube_oauth_fails_cleanly_without_marking_video_uploaded(
     assert any("replace YT_REFRESH_TOKEN" in message for message in notifications)
 
 
+def test_insufficient_read_scope_keeps_uploaded_video_id_and_never_reuploads(
+    tmp_path, monkeypatch
+):
+    import studio.publishing as publishing
+    from studio.db import get_video
+    from studio.publishing import YouTubeAuthError
+
+    job, video = _built_video(tmp_path)
+    monkeypatch.setattr(
+        qa,
+        "inspect_video",
+        lambda *a, **k: qa.QAReport(
+            path=video,
+            checks=[qa.Check("audio/video", True, "ok")],
+            duration=33.5,
+            mean_volume_db=-17.8,
+        ),
+    )
+    uploaded = []
+    monkeypatch.setattr(
+        publishing, "upload",
+        lambda *a, **k: uploaded.append("yt-video-123") or "yt-video-123",
+    )
+    monkeypatch.setattr(
+        publishing, "wait_processed",
+        lambda video_id: (_ for _ in ()).throw(
+            YouTubeAuthError(
+                "upload already saved; do not upload it again; replace YT_REFRESH_TOKEN"
+            )
+        ),
+    )
+    notifications = []
+    monkeypatch.setattr(daily, "send", lambda message: notifications.append(message))
+
+    assert daily.upload_latest() is False
+    saved = get_video(job)
+    assert saved["youtube_id"] == "yt-video-123"
+    assert saved["status"] == "uploaded"
+    assert uploaded == ["yt-video-123"]
+    assert any("do not upload it again" in message for message in notifications)
+
+
 def test_missing_file_is_recorded(tmp_path):
     job = save_video("gone", "shorts", "hindi", "finance", {})
     update_video(job, video_path=str(tmp_path / "missing.mp4"))
