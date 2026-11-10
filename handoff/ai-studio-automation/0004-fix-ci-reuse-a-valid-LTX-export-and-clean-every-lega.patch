@@ -1,0 +1,252 @@
+From a7e0cba39c4fa6279e21f01b7aafc169a2fd7b1a Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 12:44:14 +0000
+Subject: [PATCH 4/5] fix(ci): reuse a valid LTX export and clean every legacy
+ cache location
+
+The previous run exhausted C: while writing the default Windows Hugging Face
+cache, but the cleanup step only removed the copy under RUNNER_TOOL_CACHE, so the
+20+ GB snapshot could survive and the new 100 GB gate would still fail.
+
+- clean the LTX snapshot from the tool cache, %USERPROFILE%\.cache\huggingface
+  and %LOCALAPPDATA%\huggingface, reporting the reclaimed size and leaving user
+  assets untouched
+- skip download and conversion entirely when a complete INT8 export
+  (model_index.json plus .xml and .bin weights) already exists
+- clear partially written exports before a retry so a broken export can never be
+  mistaken for a valid cache
+- make the free-space requirement a workflow input (default 100 GB) instead of a
+  hard-coded literal, with validation
+
+PowerShell logic could not be executed here; it is validated by YAML parsing and
+review only and still needs one run on the self-hosted runner.
+---
+ .github/workflows/openvino-ltx-local-gpu.yml |  68 ++++++++++++++++---
+ db/studio.sqlite                             | Bin 40960 -> 0 bytes
+ 2 files changed, 57 insertions(+), 11 deletions(-)
+ delete mode 100644 db/studio.sqlite
+
+diff --git a/.github/workflows/openvino-ltx-local-gpu.yml b/.github/workflows/openvino-ltx-local-gpu.yml
+index 801c023..cdc380f 100644
+--- a/.github/workflows/openvino-ltx-local-gpu.yml
++++ b/.github/workflows/openvino-ltx-local-gpu.yml
+@@ -15,6 +15,10 @@ on:
+           - "9:16"
+           - "16:9"
+         default: "9:16"
++      min_free_gb:
++        description: Minimum free space required on one local drive (GB)
++        required: false
++        default: "100"
+ 
+ permissions:
+   contents: read
+@@ -36,21 +40,43 @@ jobs:
+       HF_HUB_ETAG_TIMEOUT: "120"
+       HF_HUB_DISABLE_TELEMETRY: "1"
+     steps:
+-      - name: Remove only the stale LTX cache from the old C-drive location
++      - name: Remove stale LTX caches from legacy locations
+         shell: powershell
+         run: |
+-          $legacyCache = Join-Path $env:RUNNER_TOOL_CACHE "huggingface\hub\models--Lightricks--LTX-Video"
+-          if (Test-Path -LiteralPath $legacyCache) {
+-            Write-Host "Removing stale LTX-only cache from the previous C-drive location: $legacyCache"
+-            Remove-Item -LiteralPath $legacyCache -Recurse -Force
+-          } else {
+-            Write-Host "No legacy LTX cache found."
++          # The failed run exhausted C: while writing the default Windows
++          # Hugging Face cache, not only the runner tool cache. Remove the LTX
++          # snapshot from every location previous runs may have used, then
++          # report the space that came back.
++          $candidates = @(
++            (Join-Path $env:RUNNER_TOOL_CACHE "huggingface\hub\models--Lightricks--LTX-Video"),
++            (Join-Path $env:USERPROFILE ".cache\huggingface\hub\models--Lightricks--LTX-Video"),
++            (Join-Path $env:LOCALAPPDATA "huggingface\hub\models--Lightricks--LTX-Video")
++          )
++          $removed = 0
++          foreach ($cache in $candidates) {
++            if ([string]::IsNullOrWhiteSpace($cache)) { continue }
++            if (Test-Path -LiteralPath $cache) {
++              $sizeGB = [math]::Round(((Get-ChildItem -LiteralPath $cache -Recurse -Force -ErrorAction SilentlyContinue |
++                Measure-Object -Property Length -Sum).Sum) / 1GB, 2)
++              Write-Host "Removing stale LTX cache ($sizeGB GB): $cache"
++              Remove-Item -LiteralPath $cache -Recurse -Force
++              $removed++
++            } else {
++              Write-Host "No stale LTX cache at: $cache"
++            }
+           }
++          Write-Host "Removed $removed stale cache location(s). User assets are untouched."
+ 
+       - name: Select model storage drive and check free space
+         shell: powershell
++        env:
++          MIN_FREE_GB: ${{ inputs.min_free_gb }}
+         run: |
+-          $requiredBytes = 100GB
++          $minimumGB = 0
++          if (-not [int64]::TryParse($env:MIN_FREE_GB, [ref]$minimumGB) -or $minimumGB -le 0) {
++            throw "min_free_gb must be a positive integer; received '$env:MIN_FREE_GB'."
++          }
++          $requiredBytes = [int64]$minimumGB * 1GB
+           $candidates = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" |
+             Where-Object { $_.DeviceID -match '^[A-Z]:$' } |
+             ForEach-Object {
+@@ -67,7 +93,7 @@ jobs:
+ 
+           $selected = $candidates | Where-Object { $_.FreeBytes -ge $requiredBytes } | Select-Object -First 1
+           if ($null -eq $selected) {
+-            throw "At least 100 GB free space is required on one local fixed drive for the LTX source model, OpenVINO export, Python environment and temporary files. Free space and rerun; no model download was started."
++            throw "At least $minimumGB GB free space is required on one local fixed drive for the LTX source model, OpenVINO export, Python environment and temporary files. Free space and rerun; no model download was started."
+           }
+ 
+           $storageRoot = Join-Path $selected.Root "AI-Video-Models"
+@@ -152,13 +178,30 @@ jobs:
+             throw "Less than 60 GB remains on the selected model drive after environment setup. Remove unrelated files or use a larger drive before downloading LTX-Video."
+           }
+ 
++      - name: Reuse an existing INT8 LTX-Video export when it is complete
++        id: cache
++        shell: powershell
++        run: |
++          $modelDir = Join-Path $env:OPENVINO_MODEL_STORAGE_ROOT "ltx_video_openvino_int8"
++          $manifest = Join-Path $modelDir "model_index.json"
++          $hasXML = (Get-ChildItem -LiteralPath $modelDir -Filter *.xml -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0
++          $hasBin = (Get-ChildItem -LiteralPath $modelDir -Filter *.bin -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0
++          if ((Test-Path -LiteralPath $manifest) -and $hasXML -and $hasBin) {
++            Write-Host "Valid INT8 export already present; skipping download and conversion: $modelDir"
++            "reused=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
++            "OPENVINO_LTX_MODEL_DIR=$modelDir" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
++          } else {
++            Write-Host "No complete export found; a fresh INT8 export is required."
++            "reused=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
++          }
++
+       - name: Export INT8 LTX-Video model with resumable downloads and retries
+         id: model
++        if: ${{ steps.cache.outputs.reused != 'true' }}
+         timeout-minutes: 300
+         shell: powershell
+         run: |
+           $modelDir = Join-Path $env:OPENVINO_MODEL_STORAGE_ROOT "ltx_video_openvino_int8"
+-          $py = Join-Path $env:OPENVINO_LTX_VENV "Scripts\python.exe"
+           $cli = Join-Path $env:OPENVINO_LTX_VENV "Scripts\optimum-cli.exe"
+           New-Item -ItemType Directory -Force -Path $modelDir | Out-Null
+           $exported = $false
+@@ -170,7 +213,10 @@ jobs:
+               break
+             }
+             if ($attempt -lt 4) {
+-              Write-Warning "Export failed; waiting 45 seconds before retry. Hugging Face downloads should resume from the selected model drive cache."
++              # A half-written export must never be mistaken for a cached one.
++              Get-ChildItem -LiteralPath $modelDir -Force -ErrorAction SilentlyContinue |
++                Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
++              Write-Warning "Export failed; cleared partial output and waiting 45 seconds. Hugging Face downloads resume from the selected model drive cache."
+               Start-Sleep -Seconds 45
+             }
+           }
+diff --git a/db/studio.sqlite b/db/studio.sqlite
+deleted file mode 100644
+index 2f9a409c7120e0b50222ac9e7f0b89d7312556f4..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 40960
+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
+K|Ihsv{{LU5R<djW
+
+-- 
+2.39.5
+

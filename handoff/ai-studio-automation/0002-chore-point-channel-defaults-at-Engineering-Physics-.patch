@@ -1,0 +1,127 @@
+From 329b878d08261166fd297b0b3bf561dff992d36c Mon Sep 17 00:00:00 2001
+From: Arena Agent <agent@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 12:39:24 +0000
+Subject: [PATCH 2/5] chore: point channel defaults at Engineering Physics and
+ tighten env templates
+
+- replace the remaining Power Codex strings in run.py, core/script_engine.py and
+  both env templates with Engineering Physics (description, category playlists,
+  SEO title suffix and tags)
+- drop the paid ElevenLabs option from the templates; the zero-cost policy only
+  allows edge-tts, Chatterbox and the self-hosted Chatterbox HTTP engine
+- document the footage provider keys the workflows already read
+  (COVERR, DVIDS, EUROPEANA, NARA, NASA)
+---
+ .env.example          | 14 ++++++++++----
+ core/script_engine.py |  4 ++--
+ env.example           |  8 ++++----
+ run.py                |  6 +++---
+ 4 files changed, 19 insertions(+), 13 deletions(-)
+
+diff --git a/.env.example b/.env.example
+index 469a9c1..c4d719c 100644
+--- a/.env.example
++++ b/.env.example
+@@ -30,6 +30,13 @@ POLLINATIONS_GAP=16
+ # and Internet Archive are searched without API keys.
+ PIXABAY_API_KEY=
+ # Mixkit has no supported public search API; use its site manually.
++# Optional, free-tier footage archives (leave blank to skip the provider):
++COVERR_API_KEY=
++DVIDS_API_KEY=
++EUROPEANA_API_KEY=
++NARA_API_KEY=
++# NASA's public media API works keyless at low volume; a key raises the limit.
++NASA_API_KEY=
+ 
+ # Paid hosted AI video providers (MuAPI/Replicate) are permanently disabled.\n\n# YouTube upload: required only when uploading videos
+ YT_CLIENT_ID=
+@@ -41,7 +48,7 @@ TELEGRAM_BOT_TOKEN=
+ TELEGRAM_CHAT_ID=
+ 
+ # Channel and publishing settings
+-CHANNEL_NAME=Power Codex
++CHANNEL_NAME=Engineering Physics
+ PRIVACY=private
+ # PUBLISH_AT_IST=19:00
+ 
+@@ -54,9 +61,8 @@ VOICE_ENGLISH=en-IN-PrabhatNeural
+ VOICE_ENGLISH_FEMALE=en-IN-NeerjaNeural
+ VOICE_FEMALE=hi-IN-SwaraNeural
+ 
+-# Optional ElevenLabs settings (only if implemented/configured in your setup)
+-# ELEVENLABS_API_KEY=
+-# ELEVENLABS_VOICE_ID=
++# Paid voice providers (ElevenLabs) are intentionally unsupported; see the
++# zero-cost policy in docs/AUDIT.md.
+ 
+ # Optional narration pacing and pronunciation controls
+ TTS_RATE=-5%
+diff --git a/core/script_engine.py b/core/script_engine.py
+index e5a60fd..7a523b1 100644
+--- a/core/script_engine.py
++++ b/core/script_engine.py
+@@ -740,7 +740,7 @@ def generate_seo(script: dict) -> dict:
+     cat = script.get("category", "")
+     tags = script.get("tags", ["finance", "hinglish", "education"])
+     titles = [
+-        f"{title} | Power Codex",
++        f"{title} | Engineering Physics",
+         f"{title} - Aasaan Hinglish mein",
+         f"Kya aap jaante ho? {title}",
+         f"{title} | {cat.title()} Explained",
+@@ -752,7 +752,7 @@ def generate_seo(script: dict) -> dict:
+         t += 120
+     return {
+         "titles": titles,
+-        "tags": tags + [cat, "power codex", "hindi education"],
++        "tags": tags + [cat, "engineering physics", "hindi education"],
+         "chapters": chapters,
+         "pinned_comment": "कौन सा concept अगले video में समझाएँ? Comment में बताओ 👇",
+         "hashtags": [f"#{t.replace(' ','')}" for t in tags[:5]],
+diff --git a/env.example b/env.example
+index 7597f1f..7f04b81 100644
+--- a/env.example
++++ b/env.example
+@@ -22,10 +22,10 @@ TELEGRAM_BOT_TOKEN=
+ TELEGRAM_CHAT_ID=
+ 
+ # Optional: voice settings
+-CHANNEL_NAME=Power Codex
++CHANNEL_NAME=Engineering Physics
+ PRIVACY=private
+ # PUBLISH_AT_IST=19:00
+ 
+-# Optional: ElevenLabs (paid, but better voice quality)
+-# ELEVENLABS_API_KEY=
+-# ELEVENLABS_VOICE_ID=
++# Paid voice providers (ElevenLabs) are intentionally unsupported: the studio
++# runs on the zero-cost policy, so only edge-tts, Chatterbox and the remote
++# Chatterbox HTTP engine are accepted.
+diff --git a/run.py b/run.py
+index 09ceb44..347baf7 100644
+--- a/run.py
++++ b/run.py
+@@ -118,7 +118,7 @@ def cmd_upload(args):
+     script = json.loads(row.get("script_json") or "{}")
+     seo = generate_seo(script)
+     title = row.get("title","") + " #Shorts" if row.get("format")=="shorts" else row.get("title","")
+-    desc = script.get("description","Power Codex - roz ek naya concept.")
++    desc = script.get("description","Engineering Physics - roz ek naya concept.")
+     print(f"Uploading: {title}")
+     vid = upload(Path(row["video_path"]), title, desc, seo["tags"])
+     update_video(args.id, youtube_id=vid, status="uploaded")
+@@ -135,8 +135,8 @@ def cmd_upload(args):
+     else:
+         print("WARNING: No generated thumbnail is recorded for this video.")
+ 
+-    cat_info = {"finance":"Finance Explained | Power Codex", "markets":"Share Market | Power Codex"}
+-    playlist = cat_info.get(row.get("category",""), "Power Codex")
++    cat_info = {"finance":"Finance Explained | Engineering Physics", "markets":"Share Market | Engineering Physics"}
++    playlist = cat_info.get(row.get("category",""), "Engineering Physics")
+     try: add_to_playlist(vid, playlist)
+     except Exception as e: print(f"Playlist: {e}")
+     try: post_comment(vid, seo["pinned_comment"])
+-- 
+2.39.5
+
