@@ -264,7 +264,8 @@ def cmd_bench(args: argparse.Namespace) -> int:
 
 def cmd_qa(args: argparse.Namespace) -> int:
     report = qa.inspect_video(
-        args.path, expected_seconds=args.expected, kind=args.kind
+        args.path, expected_seconds=args.expected, kind=args.kind,
+        require_sound=not args.allow_silence,
     )
     print(report.summary())
     return 0 if report.ok else 1
@@ -342,6 +343,8 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--kind", choices=["shorts", "longform"], default=None)
     check.add_argument("--expected", type=float, default=None,
                        help="expected duration in seconds")
+    check.add_argument("--allow-silence", action="store_true",
+                       help="accept silent audio (CI demo renders)")
     check.set_defaults(func=cmd_qa)
     return parser
 

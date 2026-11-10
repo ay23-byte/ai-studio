@@ -53,6 +53,12 @@ def test_doctor_reports_hardware(capsys):
     assert "device=" in output
 
 
+def test_qa_allow_silence_flag():
+    args = build_parser().parse_args(["qa", "video.mp4", "--allow-silence"])
+    assert args.allow_silence is True
+    assert build_parser().parse_args(["qa", "video.mp4"]).allow_silence is False
+
+
 def test_device_flag_is_plumbed():
     args = build_parser().parse_args(["shorts", "x", "--device", "cpu"])
     assert args.device == "cpu"

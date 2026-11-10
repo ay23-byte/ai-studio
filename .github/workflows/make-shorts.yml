@@ -22,6 +22,11 @@ on:
         type: choice
         options: [auto, chatterbox-http, chatterbox, edge, silent]
         default: auto
+      script_source:
+        description: "Script source (demo = built-in script, no API key needed)"
+        type: choice
+        options: [gemini, demo]
+        default: gemini
       profile:
         description: "Pacing profile"
         type: choice
@@ -75,7 +80,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-devanagari
+          sudo apt-get install -y ffmpeg fonts-noto-core
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt -c constraints.txt
@@ -94,7 +99,12 @@ jobs:
 
       - name: Build Shorts video
         run: |
-          if [ -n "${{ inputs.topic }}" ]; then
+          if [ "${{ inputs.script_source }}" = "demo" ]; then
+            python run.py shorts "Built-in demo script" --demo \
+              --language "${{ inputs.language }}" \
+              --engine "$VOICE_ENGINE" \
+              --profile "$VOICE_PROFILE"
+          elif [ -n "${{ inputs.topic }}" ]; then
             python run.py shorts "${{ inputs.topic }}" \
               --category "${{ inputs.category }}" \
               --language "${{ inputs.language }}" \

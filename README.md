@@ -70,7 +70,7 @@ ai-studio/
 ├── tools/preview_voice.py     A/B voice profiles
 ├── tests/                     unit + opt-in end-to-end render tests
 ├── assets/{music,clips,voices}/
-├── .github/workflows/         make-shorts, make-longform, tests, watchdog, audit
+├── .github/workflows/         verify, make-shorts, make-longform, watchdog, audit
 ├── run.py  run_daily.py       compatibility entry points
 ├── requirements*.txt  constraints.txt
 └── pyproject.toml
@@ -93,6 +93,9 @@ print(track.duration, track.spans)   # exact spans for cuts + captions
 ---
 
 ## 3. Quick start
+
+**No terminal?** Tests, renders and publishing can all be triggered from the
+GitHub **Actions** tab — see [`docs/GITHUB_ONLY.md`](docs/GITHUB_ONLY.md).
 
 ```bash
 python -m venv .venv
@@ -359,10 +362,15 @@ cfg weight, voice reference, older-API fallbacks) using a faked model, the
 remote-server payload, caption alignment, DB/config behaviour and the package
 layout. `tests/test_pipeline_slow.py` renders a real MP4 with the silent engine.
 
-CI: `.github/workflows/tests.yml` runs lint, the unit suite and a real MP4
-render on Python 3.10/3.11/3.12. `lock-check.yml` audits the pinned
-dependencies weekly. Scheduling: `make-shorts.yml` (daily 9:00 IST),
-`make-longform.yml` (manual) and `watchdog.yml` (freshness alert).
+`verify.yml` is the single end-to-end check: workflow linting, Python linting,
+the unit suite on Python 3.10/3.11/3.12, a real Shorts render, a real long-form
+render, the QA gate, the hardware report and the voice benchmark — with the MP4s,
+WAVs and logs attached as artifacts and summarised on the run page. Push and
+pull requests trigger it; it can also be dispatched by hand with an `engine`
+choice. `lock-check.yml` audits the pinned dependencies weekly, `watchdog.yml`
+alerts when the channel goes quiet, and `make-shorts.yml` / `make-longform.yml`
+are the production builders. Browser-only instructions:
+[`docs/GITHUB_ONLY.md`](docs/GITHUB_ONLY.md).
 
 ---
 

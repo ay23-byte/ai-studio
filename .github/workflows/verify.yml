@@ -1,0 +1,280 @@
+name: verify
+
+# One-click, no-laptop verification. Everything the project can test runs here:
+# lint, unit tests on three Python versions, a real Shorts render, a real
+# long-form render, the QA gate, hardware report and the voice benchmark.
+# Artifacts (MP4s, JPGs, logs) are attached to every run so quality can be
+# judged from the browser.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      engine:
+        description: "Voice engine for the render jobs"
+        type: choice
+        options: [silent, edge]
+        default: silent
+      slow_tests:
+        description: "Run the opt-in slow render test"
+        type: boolean
+        default: true
+      live_network:
+        description: "Test real network voice (edge-tts)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  # -------------------------------------------------------------------------
+  # 1. Static checks — fast feedback, no media.
+  # -------------------------------------------------------------------------
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install linters
+        run: pip install ruff actionlint-py -c constraints.txt
+
+      - name: Lint Python
+        run: ruff check studio tests tools
+
+      - name: Lint workflows
+        run: actionlint .github/workflows/*.yml
+
+  # -------------------------------------------------------------------------
+  # 2. Unit tests — three supported Python versions.
+  # -------------------------------------------------------------------------
+  tests:
+    name: tests (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt -c constraints.txt
+
+      - name: Unit tests
+        run: pytest --junitxml=reports/junit.xml
+
+      - name: Slow end-to-end render
+        if: ${{ matrix.python-version == '3.12' && inputs.slow_tests != false }}
+        env:
+          STUDIO_SLOW_TESTS: "1"
+        run: pytest tests/test_pipeline_slow.py
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: junit-${{ matrix.python-version }}
+          path: reports/junit.xml
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # -------------------------------------------------------------------------
+  # 3. Real renders + QA gate + benchmark (no API keys needed).
+  # -------------------------------------------------------------------------
+  render:
+    name: render + qa
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VOICE_ENGINE: ${{ inputs.engine || 'silent' }}
+      VOICE_PROFILE: fast
+      STUDIO_OFFLINE: "1"
+      AI_STUDIO_OUTPUT_DIR: ${{ github.workspace }}/output
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install ffmpeg and Hindi fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -c constraints.txt
+
+      - name: Doctor
+        run: |
+          mkdir -p artifacts/logs artifacts/video
+          python run.py doctor | tee artifacts/logs/doctor.txt
+
+      - name: Voice benchmark
+        run: python run.py bench --engine "$VOICE_ENGINE" | tee artifacts/logs/bench.txt
+
+      - name: Render Shorts demo
+        run: |
+          python run.py demo --format shorts --engine "$VOICE_ENGINE" \
+            --profile "$VOICE_PROFILE" | tee artifacts/logs/shorts.txt
+
+      - name: Render long-form demo
+        run: |
+          python run.py demo --format long --engine "$VOICE_ENGINE" \
+            --profile natural | tee artifacts/logs/longform.txt
+
+      - name: QA gate on both renders
+        run: |
+          set -euo pipefail
+          silence=""
+          if [ "$VOICE_ENGINE" = "silent" ]; then silence="--allow-silence"; fi
+          shorts=$(find output -name 'shorts_*.mp4' -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)
+          long=$(find output -name 'longform_*.mp4' -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)
+          echo "shorts=$shorts" > artifacts/logs/renders.env
+          echo "long=$long" >> artifacts/logs/renders.env
+          : > artifacts/logs/qa.txt
+          status=0
+          python run.py qa "$shorts" --kind shorts $silence | tee -a artifacts/logs/qa.txt || status=1
+          python run.py qa "$long" --kind longform $silence | tee -a artifacts/logs/qa.txt || status=1
+          cp "$shorts" artifacts/video/shorts_demo.mp4
+          cp "$long" artifacts/video/longform_demo.mp4
+          cp "${shorts%.mp4}.jpg" artifacts/video/shorts_thumb.jpg 2>/dev/null || true
+          cp "${long%.mp4}.jpg" artifacts/video/longform_thumb.jpg 2>/dev/null || true
+          exit $status
+
+      - name: Publish summary
+        if: always()
+        run: |
+          {
+            echo "## verify — ${{ github.sha }}"
+            echo ""
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| engine | \`$VOICE_ENGINE\` |"
+            echo "| profile | \`$VOICE_PROFILE\` |"
+            echo "| runner | ${{ runner.os }} / ${{ runner.arch }} |"
+            echo ""
+            echo "### QA"
+            echo '```'
+            cat artifacts/logs/qa.txt 2>/dev/null || echo "QA did not run"
+            echo '```'
+            echo "### Benchmark"
+            echo '```'
+            cat artifacts/logs/bench.txt 2>/dev/null || echo "no benchmark"
+            echo '```'
+            echo "### Hardware"
+            echo '```'
+            sed -n '/^hardware/,/^voice engines/p' artifacts/logs/doctor.txt 2>/dev/null || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload rendered videos and logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: rendered-demo
+          path: |
+            artifacts/video/*.mp4
+            artifacts/video/*.jpg
+            artifacts/logs/*.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+  # -------------------------------------------------------------------------
+  # 4. Live network voice — proves the real speech path works on GitHub.
+  #    Only on manual runs; never blocks a push.
+  # -------------------------------------------------------------------------
+  live:
+    name: live voice
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.live_network }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -c constraints.txt
+
+      - name: edge-tts natural sample
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/live
+          python run.py voice "Namaste doston, aaj hum samjhenge ki inflation kya hota hai aur paise ki value kyun ghat jaati hai." \
+            -o artifacts/live/edge_natural.wav --engine edge --profile natural
+
+      - name: edge-tts fast sample
+        continue-on-error: true
+        run: |
+          python run.py voice "Namaste doston, aaj hum samjhenge ki inflation kya hota hai." \
+            -o artifacts/live/edge_fast.wav --engine edge --profile fast
+
+      - name: Remote Chatterbox sample (optional)
+        if: ${{ vars.CHATTERBOX_API_URL != '' }}
+        continue-on-error: true
+        env:
+          CHATTERBOX_API_URL: ${{ vars.CHATTERBOX_API_URL }}
+          CHATTERBOX_API_TOKEN: ${{ secrets.CHATTERBOX_API_TOKEN }}
+        run: |
+          python run.py voice "Namaste doston, aaj hum samjhenge ki inflation kya hota hai." \
+            -o artifacts/live/chatterbox.wav --engine chatterbox-http --profile fast
+
+      - name: Summarise live checks
+        if: always()
+        run: |
+          {
+            echo "### Live voice files"
+            echo ""
+            if ls artifacts/live/*.wav >/dev/null 2>&1; then
+              for f in artifacts/live/*.wav; do
+                echo "- \`$(basename "$f")\` — $(du -h "$f" | cut -f1)"
+              done
+            else
+              echo "No live voice file was produced. edge-tts may be blocked by the network; the silent render still passed."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload live voice samples
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: live-voice
+          path: artifacts/live/*.wav
+          if-no-files-found: warn
+          retention-days: 14

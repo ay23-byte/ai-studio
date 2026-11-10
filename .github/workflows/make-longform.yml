@@ -70,7 +70,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-devanagari
+          sudo apt-get install -y ffmpeg fonts-noto-core
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt -c constraints.txt
