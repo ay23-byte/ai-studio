@@ -283,3 +283,19 @@ jobs:
           path: artifacts/live/*.wav
           if-no-files-found: warn
           retention-days: 14
+
+  # Full production build, run on a pull request when it carries the
+  # "e2e-shorts" label. It calls the same workflow the daily schedule uses, so
+  # what passes here is exactly what runs in production.
+  shorts-e2e:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'e2e-shorts') }}
+    uses: ./.github/workflows/make-shorts.yml
+    with:
+      topic: "Why Most People Stay Poor Even After Earning More"
+      category: money
+      language: hindi
+      engine: edge
+      script_source: gemini
+      profile: fast
+      upload: false
+    secrets: inherit

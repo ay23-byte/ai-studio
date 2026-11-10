@@ -33,7 +33,7 @@ def make_placeholder(path: str | Path, seed: str = "", width: int = 1024, height
     import zlib
 
     path = Path(path)
-    accent = zlib.crc32((seed or "power-codex").encode()) % 0x30 + 0x10
+    accent = zlib.crc32((seed or "engineering-physics").encode()) % 0x30 + 0x10
     colour = f"0x0a{accent:02x}3a"
     ffmpeg.run([
         "-f", "lavfi", "-i", f"color=c={colour}:s={width}x{height}",

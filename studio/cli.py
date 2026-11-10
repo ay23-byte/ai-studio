@@ -103,9 +103,9 @@ def cmd_upload(args: argparse.Namespace) -> int:
     update_video(args.id, youtube_id=youtube_id, status="uploaded")
 
     playlist = {
-        "finance": "Finance Explained | Power Codex",
-        "markets": "Share Market | Power Codex",
-        "money": "Paise ki Samajh | Power Codex",
+        "finance": "Finance Explained | Engineering Physics",
+        "markets": "Share Market | Engineering Physics",
+        "money": "Paise ki Samajh | Engineering Physics",
     }.get(row.get("category", ""), config.CHANNEL_NAME)
     for step, action in (("playlist", lambda: add_to_playlist(youtube_id, playlist)),
                          ("comment", lambda: post_comment(youtube_id, seo["pinned_comment"]))):

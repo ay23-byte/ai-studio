@@ -147,7 +147,7 @@ def build_shorts(
         first = media[0]["path"] if media and media[0]["type"] == "image" else None
         thumb = thumbnails.make_thumbnail(
             Path(first) if first else None,
-            script.get("title", "Power Codex"),
+            script.get("title", "Engineering Physics"),
             config.OUTPUT_DIR / f"shorts_{job_id}.jpg",
             channel=config.CHANNEL_NAME,
         )

@@ -55,7 +55,7 @@ def test_make_ass_shorts_contains_expected_layers(tmp_path):
         cta="Follow karo",
         labels=[(0.2, 1.2, "Inflation")],
         disclaimer=True,
-        channel="Power Codex",
+        channel="Engineering Physics",
     )
     content = path.read_text(encoding="utf-8")
     assert "Style: Cap," in content
