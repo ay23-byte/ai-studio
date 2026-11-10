@@ -217,7 +217,10 @@ jobs:
   # -------------------------------------------------------------------------
   live:
     name: live voice
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.live_network }}
+    # Runs on every verify by default: the point of this job is to prove the
+    # real speech path works on GitHub, not just the silent engine. Steps are
+    # continue-on-error so a blocked network endpoint cannot fail the suite.
+    if: ${{ inputs.live_network != false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
