@@ -1,4 +1,4 @@
-From a7e0cba39c4fa6279e21f01b7aafc169a2fd7b1a Mon Sep 17 00:00:00 2001
+From 17611269294f37b4a58b103a417741b82b7c9cf0 Mon Sep 17 00:00:00 2001
 From: Arena Agent <agent@users.noreply.github.com>
 Date: Tue, 10 Nov 2026 12:44:14 +0000
 Subject: [PATCH 4/5] fix(ci): reuse a valid LTX export and clean every legacy
@@ -27,7 +27,7 @@ review only and still needs one run on the self-hosted runner.
  delete mode 100644 db/studio.sqlite
 
 diff --git a/.github/workflows/openvino-ltx-local-gpu.yml b/.github/workflows/openvino-ltx-local-gpu.yml
-index 801c023..cdc380f 100644
+index 36a8743..c6cb4fd 100644
 --- a/.github/workflows/openvino-ltx-local-gpu.yml
 +++ b/.github/workflows/openvino-ltx-local-gpu.yml
 @@ -15,6 +15,10 @@ on:
@@ -41,9 +41,9 @@ index 801c023..cdc380f 100644
  
  permissions:
    contents: read
-@@ -36,21 +40,43 @@ jobs:
-       HF_HUB_ETAG_TIMEOUT: "120"
-       HF_HUB_DISABLE_TELEMETRY: "1"
+@@ -39,21 +43,43 @@ jobs:
+       HF_XET_CLIENT_RETRY_MAX_ATTEMPTS: "10"
+       HF_XET_CLIENT_RETRY_BASE_DELAY: "5000"
      steps:
 -      - name: Remove only the stale LTX cache from the old C-drive location
 +      - name: Remove stale LTX caches from legacy locations
@@ -93,7 +93,7 @@ index 801c023..cdc380f 100644
            $candidates = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" |
              Where-Object { $_.DeviceID -match '^[A-Z]:$' } |
              ForEach-Object {
-@@ -67,7 +93,7 @@ jobs:
+@@ -70,7 +96,7 @@ jobs:
  
            $selected = $candidates | Where-Object { $_.FreeBytes -ge $requiredBytes } | Select-Object -First 1
            if ($null -eq $selected) {
@@ -102,7 +102,7 @@ index 801c023..cdc380f 100644
            }
  
            $storageRoot = Join-Path $selected.Root "AI-Video-Models"
-@@ -152,13 +178,30 @@ jobs:
+@@ -157,13 +183,30 @@ jobs:
              throw "Less than 60 GB remains on the selected model drive after environment setup. Remove unrelated files or use a larger drive before downloading LTX-Video."
            }
  
@@ -134,7 +134,7 @@ index 801c023..cdc380f 100644
            $cli = Join-Path $env:OPENVINO_LTX_VENV "Scripts\optimum-cli.exe"
            New-Item -ItemType Directory -Force -Path $modelDir | Out-Null
            $exported = $false
-@@ -170,7 +213,10 @@ jobs:
+@@ -175,7 +218,10 @@ jobs:
                break
              }
              if ($attempt -lt 4) {

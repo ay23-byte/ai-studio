@@ -1,34 +1,51 @@
 # Handoff: `ay23-byte/ai-studio-automation`
 
-This session's GitHub connection can only write to `ay23-byte/ai-studio`, so the
-work below was prepared against `ay23-byte/ai-studio-automation` but could not be
-pushed (HTTP 403: *Resource not accessible by integration*).
+Rebased onto `38631d3` ("Improve Hugging Face Xet downloads and retry resilience")
+with **no conflicts** — the Xet env vars and `hf_xet` install coexist with the
+storage/cache changes below.
 
-The patches apply cleanly to `9341d56` (the merge of PR #138) and were verified
-locally:
+This session's GitHub token is scoped to `ay23-byte/ai-studio`, so every push to
+`ai-studio-automation` returns 403 (*Resource not accessible by integration*).
+Nothing here is on that repository yet.
 
-* YAML parsed for every workflow; the restored `make_longform.yml` has
-  `jobs.build` and its 7 inputs;
-* `python -m compileall` clean;
-* `python -m unittest discover -s tests` — 340 tests, OK (5 skipped);
-* `git apply --check --binary` against a clean `9341d56` worktree.
+## Two ways to land it
 
-| Patch | Summary |
+### A. Browser only (no terminal)
+
+`browser-upload/` contains the final files. In GitHub's web UI, open the target
+repository, use **Add file → Upload files**, and drop each file into its folder:
+
+| Local file | Destination in `ai-studio-automation` |
 | --- | --- |
-| `0001-fix-ci-restore-the-long-form-production-workflow.patch` | Restores `make_longform.yml` (invalid since `b9f0a2d` deleted its `jobs:` block) and keeps only the paid MuAPI control removed |
-| `0002-chore-point-channel-defaults-at-Engineering-Physics-.patch` | Replaces the last Power Codex strings, removes the paid ElevenLabs option from both env templates, documents the footage provider keys |
-| `0003-docs-add-the-repository-audit-milestone-1.patch` | Adds `docs/AUDIT.md` (audit of 9341d56, including the PR #138 review) |
-| `0004-fix-ci-reuse-a-valid-LTX-export-and-clean-every-lega.patch` | OpenVINO job: cleans every legacy HF cache location, reuses a complete INT8 export, clears partial exports, configurable free-space input |
-| `0005-fix-ci-keep-studio-state-out-of-git.patch` | `make_shorts.yml`: SQLite restored/saved with `actions/cache`, only `topics.json` committed, `db/studio.sqlite` untracked |
+| `browser-upload/make_longform.yml` | `.github/workflows/make_longform.yml` (replaces the truncated file — critical) |
+| `browser-upload/make_shorts.yml` | `.github/workflows/make_shorts.yml` |
+| `browser-upload/openvino-ltx-local-gpu.yml` | `.github/workflows/openvino-ltx-local-gpu.yml` |
+| `browser-upload/AUDIT.md` | `docs/AUDIT.md` (new file) |
 
-`all-changes.patch` is the same set as one diff.
+Then delete the tracked database in the same commit if the web UI allows it, or
+leave it — the patch series does that step.
 
-To continue from a session opened on `ai-studio-automation`:
+### B. From a session opened on the target repo
 
 ```bash
-git clone https://github.com/ay23-byte/ai-studio  # public, read-only
+git clone https://github.com/ay23-byte/ai-studio
 git apply --binary ai-studio/handoff/ai-studio-automation/all-changes.patch
 ```
 
-Then push a branch and open the PR. The PowerShell logic in patch 4 cannot be
-executed outside the self-hosted Windows runner; it still needs one real run.
+## What the patches change
+
+| Patch | Summary |
+| --- | --- |
+| `0001` | Restores `make_longform.yml` (invalid since `b9f0a2d` deleted its `jobs:` block) |
+| `0002` | Last Power Codex strings → Engineering Physics, paid ElevenLabs option removed, footage keys documented |
+| `0003` | `docs/AUDIT.md` |
+| `0004` | OpenVINO: clean all legacy HF caches, reuse a complete INT8 export, clear partial exports, configurable `min_free_gb` |
+| `0005` | `make_shorts.yml`: SQLite via `actions/cache`, only `topics.json` committed, `db/studio.sqlite` untracked |
+
+Verified locally against `38631d3`: every workflow parses (`make-longform` has
+`jobs.build` and 7 inputs), `compileall` clean, 340 unit tests OK (5 skipped),
+`git apply --check --binary` clean, 0 Power Codex references, database untracked.
+
+Patch 4's PowerShell runs only on the self-hosted Windows runner; it is
+YAML-validated and reviewed, not executed. One dispatch run with
+`min_free_gb: 100` is the required evidence.
