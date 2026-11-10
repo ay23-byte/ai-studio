@@ -1,0 +1,319 @@
+# AI Studio
+
+An automated faceless video studio for Hindi/Hinglish explainer channels:
+**script → human-sounding voice → visuals → burned captions → YouTube**.
+
+Version 2.0 rebuilds the project as a proper `studio/` package and replaces the
+robotic edge-tts narration with a pluggable voice layer built around
+**[Chatterbox](https://github.com/resemble-ai/chatterbox)** (Resemble AI's
+open-source TTS), plus a pacing engine that makes the delivery sound like a
+person talking — including a deliberately **fast, Shorts-ready profile**.
+
+```
+python run.py demo                     # build a Short from the built-in demo script
+python run.py shorts "Inflation kya hai" --profile fast
+python run.py long   "Mutual funds" --minutes 7 --profile natural
+```
+
+---
+
+## 1. What changed in 2.0
+
+| Area | Before | Now |
+| --- | --- | --- |
+| Layout | flat files at repo root importing `core.*` (broken) | `studio/` package with `media/`, `voice/`, `pipeline/`, `publishing/`; thin `run.py` shims |
+| Voice | edge-tts only, fixed prosody | Chatterbox (local or remote HTTP), edge-tts fallback, pluggable engines + `silent` dry-run engine |
+| Pacing | one rate per sentence | punctuation-aware pauses, jittered tempo, emphasis, breaths, silence trimming, broadcast loudness |
+| Captions | evenly guessed timings | exact per-sentence timings from the synthesized audio |
+| Visuals | hard failure when APIs were down | AI image → stock clip → local gradient placeholder |
+| Ops | DB committed on every run | DB uploaded as artifact, topics progress committed |
+| Quality | no tests, no lint | 114 tests, ruff, CI workflow |
+
+---
+
+## 2. Project structure
+
+```
+ai-studio/
+├── studio/
+│   ├── config.py              environment + paths (no import side effects)
+│   ├── logs.py                one logging facade
+│   ├── db.py                  SQLite jobs (lazy schema)
+│   ├── script_engine.py       Gemini scripts + SEO
+│   ├── notify.py              Telegram alerts
+│   ├── cli.py                 `run.py` implementation
+│   ├── daily.py               scheduled runner (`run_daily.py`)
+│   ├── content/               built-in demo scripts
+│   ├── media/
+│   │   ├── ffmpeg.py          binary resolution, duration, image size, decode
+│   │   ├── images.py          Cloudflare/Pollinations/Pixabay + placeholder
+│   │   ├── editor_shorts.py   9:16 renderer
+│   │   ├── editor_longform.py 16:9 renderer
+│   │   └── thumbnails.py      1280×720 thumbnails
+│   ├── voice/
+│   │   ├── types.py           PacingProfile presets, Utterance, VoiceTrack
+│   │   ├── humanize.py        text normalisation + pause/tempo planning
+│   │   ├── assemble.py        synthesize → trim → concat → master → timings
+│   │   └── engines/
+│   │       ├── chatterbox.py        local Chatterbox (incl. Hindi pack)
+│   │       ├── chatterbox_server.py remote Chatterbox HTTP API
+│   │       ├── edge.py              free fallback
+│   │       └── silent.py            timed silence for dry runs/tests
+│   ├── pipeline/              captions.py, shorts.py, longform.py
+│   └── publishing/youtube.py  upload, playlists, comments
+├── tools/preview_voice.py     A/B voice profiles
+├── tests/                     unit + opt-in end-to-end render tests
+├── assets/{music,clips,voices}/
+├── .github/workflows/         make-shorts, make-longform, tests
+├── run.py  run_daily.py       compatibility entry points
+├── requirements*.txt
+└── pyproject.toml
+```
+
+Everything is importable as a library:
+
+```python
+from studio.pipeline import build_shorts
+from studio.voice import synthesize, SpeechChunk
+
+track = synthesize(
+    [SpeechChunk("Inflation kya hai? Chalo simple example se samjhein.", "scene0")],
+    build_dir="build/demo", language="hindi",
+    engine="chatterbox", profile="fast",
+)
+print(track.duration, track.spans)   # exact spans for cuts + captions
+```
+
+---
+
+## 3. Quick start
+
+```bash
+python -m venv .venv
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+
+pip install -r requirements.txt      # light: scripts, images, upload, edge-tts
+cp .env.example .env                 # fill in keys later
+
+sudo apt install ffmpeg fonts-noto-core fonts-noto-devanagari   # macOS: brew install ffmpeg
+# or, without root: pip install imageio-ffmpeg
+
+python run.py doctor                 # checks ffmpeg, engines, keys
+python run.py voice "Namaste, yeh aawaz kaisi lagi?" --engine edge
+```
+
+A **fully offline** smoke test (no keys, no network, silent audio, placeholder
+visuals) proves the whole render path:
+
+```bash
+STUDIO_OFFLINE=1 python run.py demo --engine silent
+```
+
+---
+
+## 4. Chatterbox: the human voice
+
+Chatterbox is a 0.5B-parameter open TTS model with zero-shot voice cloning and
+two expressive knobs:
+
+* **`exaggeration`** — emotional intensity (`0.25` calm → `1.5+` dramatic)
+* **`cfg_weight`** — pacing/conditioning weight (`~0.3` = brisk, `0.7+` = deliberate)
+
+The multilingual checkpoint speaks **Hindi (`language_id="hi"`)** along with 22
+other languages; there is also a dedicated Hindi language pack.
+
+> Upstream note: Resemble AI archived the repo in August 2026 ("retired
+> research"). It is MIT-licensed, still installable, and runs entirely offline —
+> pin `chatterbox-tts` in `requirements-voice.txt` so a future release cannot
+> break you.
+
+### 4.1 Option A — local model (GPU recommended)
+
+```bash
+pip install -r requirements-voice.txt      # chatterbox-tts + torch (~4 GB)
+
+export VOICE_ENGINE=chatterbox
+export CHATTERBOX_MODEL=multilingual       # English-only: english | turbo | nano
+export CHATTERBOX_DEVICE=cuda              # cpu | mps | cuda
+export CHATTERBOX_T3=v3                    # latest multilingual checkpoint
+
+python run.py doctor                       # chatterbox should now be ✓
+python tools/preview_voice.py              # writes output/voice_samples/*.wav
+```
+
+Weights download from Hugging Face on the first sentence. On CPU it works but is
+several times slower than realtime — fine for one video, painful for a daily cron.
+
+### 4.2 Option B — remote GPU server (best for GitHub Actions)
+
+Run any Chatterbox HTTP server (for example the popular `chatterbox-tts-api`,
+default port `4123`) on a GPU box, then point the studio at it:
+
+```bash
+export VOICE_ENGINE=chatterbox-http
+export CHATTERBOX_API_URL=http://gpu-box:4123
+# export CHATTERBOX_API_TOKEN=...          # optional bearer token
+```
+
+The remote engine posts `{input, exaggeration, cfg_weight, language_id}` to
+`/v1/audio/speech` and, when a reference clip is set, uploads it to
+`/v1/audio/speech/upload`. In CI set `CHATTERBOX_API_URL` as a repository secret.
+
+### 4.3 Option C — edge-tts fallback
+
+No GPU and no server? `VOICE_ENGINE=edge` (or leave `auto`) keeps working with
+the same pacing layer, just a less human timbre.
+
+### 4.4 Cloning a voice
+
+Record 10–20 s (mono WAV, clean, same language you narrate) and point
+`CHATTERBOX_REF` at it:
+
+```bash
+export CHATTERBOX_REF=assets/voices/reference.wav
+```
+
+Rules of thumb (from the upstream guide):
+
+* match the reference language to `language_id`, or the accent leaks;
+* a **brisk** reference + `cfg_weight≈0.3` gives the best Shorts pacing;
+* a warm/slow reference suits `VOICE_PROFILE=documentary`.
+
+For the dedicated Hindi pack, ship the checkpoint folder and use
+`CHATTERBOX_CKPT_DIR=assets/models/chatterbox-hi` (loaded via `from_local`).
+
+---
+
+## 5. How the humanisation works
+
+`studio/voice/humanize.py` + `assemble.py` do the work so every engine sounds
+alive:
+
+1. **Normalise** — strip markdown, expand ₹/$/% into spoken words, spell digits
+   in Hindi or English (`500` → "पाँच सौ"), keep paragraph breaks.
+2. **Split** — danda/`.`/`?`/`!`/ellipses, without breaking "Dr.", "Rs." or decimals.
+3. **Plan pauses** — punctuation- and length-aware, ±18–25 % jitter, longer gap at
+   paragraph breaks. Clipped Shorts lines get shorter gaps than long sentences.
+4. **Plan tempo** — each sentence gets a ±3–5 % tempo offset; the profile adds a
+   pitch-safe `atempo` on top (fast = ×1.08, energetic = ×1.12).
+5. **Emphasise** — questions, exclamations and very short lines get an
+   `exaggeration` boost for Chatterbox.
+6. **Breathe** — optionally mixes a short band-passed breath into natural gaps
+   (12 % volume, so it reads as an intake, not a hiss).
+7. **Clean** — trims model silence, micro-fades edges (no clicks), concatenates,
+   then high-pass, gentle compression and `loudnorm I=-16 LUFS`.
+8. **Time** — returns per-sentence timings and per-scene spans; captions and cuts
+   use these, so text, voice and visuals stay locked.
+
+### Pacing profiles
+
+| Profile | Tempo | Sentence gap | Chatterbox `cfg` / `exagg` | Use for |
+| --- | --- | --- | --- | --- |
+| `natural` | ×1.00 | 0.30 s | 0.50 / 0.50 | long-form default |
+| `fast` | ×1.08 | 0.20 s | 0.30 / 0.60 | **Shorts default** |
+| `energetic` | ×1.12 | 0.18 s | 0.35 / 0.75 | high-retention hooks |
+| `documentary` | ×0.97 | 0.38 s | 0.55 / 0.45 | calm explainers |
+
+Measured on a five-sentence Hinglish passage the same text renders ~26 % faster
+in `fast` than in `documentary` before any engine speed-up.
+
+Pick one with `VOICE_PROFILE=fast` or `--profile fast`; audition them all:
+
+```bash
+python tools/preview_voice.py --engine chatterbox --reference assets/voices/reference.wav
+```
+
+---
+
+## 6. CLI
+
+| Command | What it does |
+| --- | --- |
+| `python run.py doctor` | environment, ffmpeg, engines, credentials, topics |
+| `python run.py shorts "topic" [--category finance] [--profile fast] [--engine auto]` | generate script → render Short |
+| `python run.py long "topic" --minutes 7 [--profile natural]` | long-form video |
+| `python run.py voice "text" -o out.wav [--profile fast]` | voice sample only |
+| `python run.py demo [--format shorts\|long]` | built-in script, no Gemini |
+| `python run.py list` | recent jobs |
+| `python run.py upload --id 3` | upload a built video (title, tags, playlist, comment) |
+| `python run_daily.py --format shorts [--engine …] [--profile …]` | next topic from `topics.json` |
+| `python run_daily.py --upload-latest` | publish newest unpublished build |
+
+`python -m studio …` is equivalent to `python run.py …`.
+
+---
+
+## 7. Configuration
+
+All variables are optional; see `.env.example` for the annotated list.
+
+| Group | Variables |
+| --- | --- |
+| Scripts | `GEMINI_API_KEY`, `GEMINI_MODEL` |
+| Images | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `PIXABAY_API_KEY`, `POLLINATIONS_GAP`, `STUDIO_OFFLINE` |
+| Voice | `VOICE_ENGINE`, `VOICE_PROFILE`, `CHATTERBOX_MODEL`, `CHATTERBOX_DEVICE`, `CHATTERBOX_T3`, `CHATTERBOX_CKPT_DIR`, `CHATTERBOX_REF`, `CHATTERBOX_API_URL`, `CHATTERBOX_API_TOKEN`, `CHATTERBOX_TEMPERATURE`, `CHATTERBOX_REPETITION_PENALTY` |
+| Fallback voice | `VOICE_HINDI`, `VOICE_ENGLISH`, `VOICE_FEMALE` |
+| Channel | `CHANNEL_NAME`, `PRIVACY`, `PUBLISH_AT_IST` |
+| YouTube | `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` |
+| Alerts | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
+| Paths | `AI_STUDIO_HOME`, `AI_STUDIO_OUTPUT_DIR`, `AI_STUDIO_ASSETS_DIR` |
+
+---
+
+## 8. Tests and CI
+
+```bash
+pip install -r requirements-dev.txt
+ruff check studio tests tools
+pytest -q                              # 114 tests, ~5 s
+STUDIO_SLOW_TESTS=1 pytest tests/test_pipeline_slow.py   # real ffmpeg render
+```
+
+The suite covers sentence splitting, Hindi/English number spelling, pause and
+tempo planning, the Chatterbox adapter contract (language id, exaggeration,
+cfg weight, voice reference, older-API fallbacks) using a faked model, the
+remote-server payload, caption alignment, DB/config behaviour and the package
+layout. `tests/test_pipeline_slow.py` renders a real MP4 with the silent engine.
+
+CI: `.github/workflows/tests.yml` (lint + tests + render).
+Scheduling: `make-shorts.yml` (daily 9:00 IST) and `make-longform.yml`
+(manual, with `engine`/`profile`/`minutes` inputs).
+
+---
+
+## 9. Publishing
+
+1. Create an OAuth client (Desktop) in Google Cloud, enable *YouTube Data API v3*.
+2. Authorise once with scope `https://www.googleapis.com/auth/youtube`
+   (`google-auth-oauthlib`'s `InstalledAppFlow`), then store the refresh token.
+3. Put `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` in `.env` or
+   repository secrets.
+4. `PRIVACY=private` plus `PUBLISH_AT_IST=19:00` schedules the premiere; leave
+   `PUBLISH_AT_IST` empty to publish immediately at `PRIVACY`.
+5. Uploads are flagged `containsSyntheticMedia` — keep that honest.
+
+---
+
+## 10. Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| `No usable voice engine found` | `pip install edge-tts` for a quick start, or `pip install -r requirements-voice.txt`, or set `CHATTERBOX_API_URL` |
+| Chatterbox is very slow / OOM on CPU | use `CHATTERBOX_DEVICE=cpu` with short sentences (already the default), or move to the HTTP server engine |
+| Hindi sounds accented | set `CHATTERBOX_REF` to a Hindi clip, ensure `CHATTERBOX_MODEL=multilingual`, and `cfg_weight≈0.3` |
+| Captions drift | check `ffprobe` is installed; without it durations fall back to `ffmpeg -i`/wave parsing, which can be a frame off |
+| Devanagari boxes in burned captions | install `fonts-noto-devanagari` (CI already does) |
+| `ffmpeg was not found` | install ffmpeg or `pip install imageio-ffmpeg` |
+| Build dies with no images | image APIs are throttled; set `STUDIO_OFFLINE=1` to use gradient placeholders, or add `CLOUDFLARE_API_TOKEN` |
+
+---
+
+## 11. Credits
+
+* [Chatterbox](https://github.com/resemble-ai/chatterbox) by Resemble AI (MIT) —
+  model, watermarking and reference recordings stay subject to its disclaimer.
+* [edge-tts](https://github.com/rany2/edge-tts) for the free fallback voices.
+* Gemini, Cloudflare Workers AI, Pollinations, Pixabay, ffmpeg.
+
+Use synthetic voices and cloned likenesses only with consent, and keep the
+educational disclaimer on finance content.

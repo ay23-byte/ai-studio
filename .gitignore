@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Local secrets
+.env
+
+# Generated media and state
+build/
+output/
+db/*.sqlite
+*.log
+
+# Heavy assets: keep the folders, ignore the media
+assets/music/*
+assets/clips/*
+assets/voices/*
+!assets/music/.gitkeep
+!assets/clips/.gitkeep
+!assets/voices/.gitkeep
+!assets/voices/README.md
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.DS_Store
