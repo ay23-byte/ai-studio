@@ -1,5 +1,8 @@
 # AI Studio
 
+[![verify](https://github.com/ay23-byte/ai-studio/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/ay23-byte/ai-studio/actions/workflows/verify.yml)
+[![make-shorts](https://github.com/ay23-byte/ai-studio/actions/workflows/make-shorts.yml/badge.svg?branch=main)](https://github.com/ay23-byte/ai-studio/actions/workflows/make-shorts.yml)
+
 An automated faceless video studio for Hindi/Hinglish explainer channels:
 **script → human-sounding voice → visuals → burned captions → YouTube**.
 

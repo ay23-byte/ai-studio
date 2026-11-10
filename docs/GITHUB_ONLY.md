@@ -12,7 +12,7 @@ result can be inspected in the browser.
 
 | I want to… | Workflow | What it does |
 | --- | --- | --- |
-| **Test everything** | Actions → **verify** → Run workflow | lint + unit tests on Python 3.10/3.11/3.12, real Shorts render, real long-form render, QA gate, hardware report, voice benchmark |
+| **Test everything** | Actions → **verify** → Run workflow | lint (code + workflows) + unit tests on Python 3.10/3.11/3.12, a real end-to-end render test, real Shorts and long-form renders, the QA gate, hardware report, voice benchmark, and real edge-tts speech |
 | **Make a Short** | Actions → **make-shorts** → Run workflow | builds one Short; `script_source: demo` needs **no API key**, `engine: edge` gives real speech |
 | **Make a long-form video** | Actions → **make-longform** → Run workflow | builds one 16:9 video (needs `GEMINI_API_KEY` for a fresh script) |
 | **Check the channel is alive** | Actions → **watchdog** → Run workflow | fails if nothing was published in the last 26 hours |
@@ -21,7 +21,7 @@ Automatic, no clicking required:
 
 | Event | Workflow |
 | --- | --- |
-| push / pull request | `verify` |
+| push to `main`, every pull request | `verify` (including a real edge-tts sample and the slow render test) |
 | daily 09:00 IST | `make-shorts` (builds; uploads only if you enable it) |
 | daily 12:30 IST | `watchdog` |
 | Mondays 10:30 IST | `dependency-audit` (`pip-audit`) |
@@ -34,7 +34,7 @@ Automatic, no clicking required:
 3. Scroll to **Artifacts** and download:
    * `rendered-demo` — `shorts_demo.mp4`, `longform_demo.mp4`, thumbnails and
      the `doctor` / `bench` / `qa` text logs;
-   * `live-voice` — real edge-tts WAVs, one per pacing profile;
+   * `live-voice` — real edge-tts WAVs (`edge_natural.wav`, `edge_fast.wav`), produced on every run so you can hear the actual fallback voice;
    * `junit-3.12` — machine-readable test report.
 4. Play the MP4 directly from the browser to judge captions, pacing and visuals.
 
