@@ -7,8 +7,10 @@ name: verify
 # judged from the browser.
 
 on:
+  # Feature branches are covered by pull_request; push builds run on main only,
+  # so a branch never has two competing runs in the same concurrency group.
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -43,7 +45,7 @@ jobs:
   # -------------------------------------------------------------------------
   lint:
     name: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5
@@ -67,7 +69,7 @@ jobs:
   # -------------------------------------------------------------------------
   tests:
     name: tests (${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -111,7 +113,7 @@ jobs:
   render:
     name: render + qa
     needs: tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
       VOICE_ENGINE: ${{ inputs.engine || 'silent' }}
@@ -216,7 +218,7 @@ jobs:
   live:
     name: live voice
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.live_network }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5
