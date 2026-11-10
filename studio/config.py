@@ -57,7 +57,12 @@ def _load() -> dict[str, object]:
     return {
         # --- LLM ---------------------------------------------------------- #
         "GEMINI_API_KEY": _env("GEMINI_API_KEY"),
-        "GEMINI_MODEL": _env("GEMINI_MODEL", "gemini-2.0-flash"),
+        "GEMINI_MODEL": _env("GEMINI_MODEL", "gemini-3.8-flash"),
+        # Tried in order when a model is retired or overloaded. Free-tier only.
+        "GEMINI_FALLBACK_MODELS": _env(
+            "GEMINI_FALLBACK_MODELS",
+            "gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash-lite,gemini-3.1-flash-lite",
+        ),
         # --- visuals ------------------------------------------------------ #
         "PIXABAY_API_KEY": _env("PIXABAY_API_KEY"),
         "CF_ACCOUNT_ID": _env("CLOUDFLARE_ACCOUNT_ID"),

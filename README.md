@@ -337,7 +337,7 @@ All variables are optional; see `.env.example` for the annotated list.
 
 | Group | Variables |
 | --- | --- |
-| Scripts | `GEMINI_API_KEY`, `GEMINI_MODEL` |
+| Scripts | `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_FALLBACK_MODELS` (model ids are retired by Google; fallbacks keep builds alive) |
 | Images | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `PIXABAY_API_KEY`, `POLLINATIONS_GAP`, `STUDIO_OFFLINE` |
 | Voice | `VOICE_ENGINE`, `VOICE_PROFILE`, `CHATTERBOX_MODEL`, `CHATTERBOX_DEVICE`, `CHATTERBOX_T3`, `CHATTERBOX_CKPT_DIR`, `CHATTERBOX_REF`, `CHATTERBOX_API_URL`, `CHATTERBOX_API_TOKEN`, `CHATTERBOX_TEMPERATURE`, `CHATTERBOX_REPETITION_PENALTY` |
 | Fallback voice | `VOICE_HINDI`, `VOICE_ENGLISH`, `VOICE_FEMALE` |

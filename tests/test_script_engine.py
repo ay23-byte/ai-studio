@@ -153,3 +153,76 @@ def test_generate_seo_shape():
     assert len(seo["titles"]) == 5
     assert seo["chapters"][0].startswith("00:00")
     assert seo["hashtags"] == ["#inflation"]
+
+
+# --------------------------------------------------------------------------- #
+# model retirement (HTTP 404) must not burn the retry budget
+# --------------------------------------------------------------------------- #
+def test_retired_primary_model_falls_back_immediately(monkeypatch):
+    calls = []
+
+    def fake_post(url, **kwargs):
+        calls.append(url)
+        if "gemini-3.8-flash" in url:
+            return FakeResponse(
+                status_code=404,
+                text='{"error":{"code":404,"message":"This model is no longer available."}}',
+            )
+        return FakeResponse(payload=gemini_payload(shorts_script()))
+
+    monkeypatch.setattr(script_engine.requests, "post", fake_post)
+    script = script_engine.generate_shorts_script("topic")
+
+    assert script["title"] == "Inflation kya hai"
+    # one request for the retired model, one for the first fallback — not four
+    assert len(calls) == 2
+    assert "gemini-3.8-flash" in calls[0]
+    assert "gemini-3.7-flash" in calls[1]
+
+
+def test_400_model_retired_message_is_also_a_fallback(monkeypatch):
+    calls = []
+
+    def fake_post(url, **kwargs):
+        calls.append(url)
+        if "gemini-3.8-flash" in url:
+            return FakeResponse(
+                status_code=400,
+                text='{"error":{"code":400,"message":"gemini-3.8-flash is no longer available."}}',
+            )
+        return FakeResponse(payload=gemini_payload(shorts_script()))
+
+    monkeypatch.setattr(script_engine.requests, "post", fake_post)
+    script_engine.generate_shorts_script("topic")
+    assert len(calls) == 2
+
+
+def test_every_configured_model_is_tried_once(monkeypatch):
+    calls = []
+
+    def fake_post(url, **kwargs):
+        calls.append(url)
+        return FakeResponse(status_code=404, text='{"error":{"message":"no longer available"}}')
+
+    monkeypatch.setattr(script_engine.requests, "post", fake_post)
+    with pytest.raises(script_engine.GeminiError) as excinfo:
+        script_engine.generate_shorts_script("topic")
+
+    models = script_engine.configured_models()
+    assert len(models) >= 2
+    assert len(calls) == len(models)
+    assert len(set(calls)) == len(calls)  # never retries the same dead model
+    message = str(excinfo.value)
+    for model in models:
+        assert model in message
+
+
+def test_configured_models_dedupes_and_strips(monkeypatch):
+    monkeypatch.setattr(config, "GEMINI_MODEL", "primary")
+    monkeypatch.setattr(config, "GEMINI_FALLBACK_MODELS", " fallback , primary ,, other ")
+    assert script_engine.configured_models() == ["primary", "fallback", "other"]
+
+
+def test_retired_default_model_is_gone():
+    """Guard against re-pinning a model Google has already withdrawn."""
+    assert config.GEMINI_MODEL != "gemini-2.0-flash"
