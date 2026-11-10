@@ -58,3 +58,38 @@ def test_missing_oauth_settings_are_reported_before_refresh(monkeypatch):
 
     with pytest.raises(RuntimeError, match="YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN"):
         _creds()
+
+
+
+def test_wait_processed_reports_missing_read_scope_without_losing_video_id(monkeypatch):
+    from studio.publishing import youtube as publishing
+
+    class Forbidden:
+        status = 403
+
+    class ScopeError(Exception):
+        resp = Forbidden()
+        content = b'{"error":{"errors":[{"reason":"insufficientPermissions"}]}}'
+
+    class Request:
+        def execute(self):
+            raise ScopeError("Request had insufficient authentication scopes")
+
+    class Videos:
+        def list(self, **kwargs):
+            return Request()
+
+    class Client:
+        def videos(self):
+            return Videos()
+
+    monkeypatch.setattr(publishing, "_youtube", lambda: Client())
+
+    with pytest.raises(YouTubeAuthError) as caught:
+        publishing.wait_processed("already-uploaded-video-id", max_wait=1)
+
+    message = str(caught.value)
+    assert "already saved" in message
+    assert "do not upload it again" in message
+    assert "https://www.googleapis.com/auth/youtube" in message
+    assert "YT_REFRESH_TOKEN" in message
