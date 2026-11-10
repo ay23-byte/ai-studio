@@ -93,7 +93,7 @@ jobs:
         run: pytest --junitxml=reports/junit.xml
 
       - name: Slow end-to-end render
-        if: ${{ matrix.python-version == '3.12' && inputs.slow_tests != false }}
+        if: ${{ matrix.python-version == '3.12' && (github.event_name != 'workflow_dispatch' || inputs.slow_tests == true) }}
         env:
           STUDIO_SLOW_TESTS: "1"
         run: pytest tests/test_pipeline_slow.py
@@ -220,7 +220,7 @@ jobs:
     # Runs on every verify by default: the point of this job is to prove the
     # real speech path works on GitHub, not just the silent engine. Steps are
     # continue-on-error so a blocked network endpoint cannot fail the suite.
-    if: ${{ inputs.live_network != false }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.live_network == true }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
