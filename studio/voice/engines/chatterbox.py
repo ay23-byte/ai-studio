@@ -21,6 +21,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from studio.hardware import configure_torch_runtime
 from studio.logs import get_logger
 from studio.voice.engines.base import EngineUnavailable, TTSEngine
 from studio.voice.types import PacingProfile, language_code
@@ -47,6 +48,7 @@ def _env_float(name: str, default: float) -> float:
 
 
 def _detect_device() -> str:
+    """Pick the fastest available torch device (cuda > xpu > mps > cpu)."""
     explicit = _env("CHATTERBOX_DEVICE")
     if explicit:
         return explicit
@@ -55,7 +57,15 @@ def _detect_device() -> str:
 
         if torch.cuda.is_available():
             return "cuda"
-        if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+        xpu_backend = getattr(torch, "xpu", None)
+        if xpu_backend is not None:
+            try:
+                if xpu_backend.is_available():
+                    return "xpu"
+            except Exception:  # noqa: BLE001 - older torch without xpu
+                pass
+        mps_backend = getattr(torch.backends, "mps", None)
+        if mps_backend is not None and mps_backend.is_available():
             return "mps"
     except Exception:  # pragma: no cover - torch optional
         pass
@@ -164,6 +174,16 @@ class ChatterboxEngine(TTSEngine):
 
     def _build_model(self, language: str):
         cls = self._load_class()
+        if self.device == "cpu":
+            runtime = configure_torch_runtime("cpu")
+            if runtime.get("threads"):
+                log.info("pinned torch to %s CPU threads", runtime["threads"])
+            if self.is_multilingual:
+                log.warning(
+                    "Chatterbox multilingual on CPU is typically 2-6x slower than "
+                    "realtime. Tips: VOICE_PROFILE=fast, shorter scripts, "
+                    "CHATTERBOX_MODEL=nano for English, or CHATTERBOX_API_URL for a GPU server."
+                )
         log.info(
             "loading Chatterbox %s on %s (first call downloads weights)",
             self.model_kind, self.device,

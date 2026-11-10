@@ -27,7 +27,8 @@ python run.py long   "Mutual funds" --minutes 7 --profile natural
 | Captions | evenly guessed timings | exact per-sentence timings from the synthesized audio |
 | Visuals | hard failure when APIs were down | AI image → stock clip → local gradient placeholder |
 | Ops | DB committed on every run | DB uploaded as artifact, topics progress committed |
-| Quality | no tests, no lint | 114 tests, ruff, CI workflow |
+| Quality | no tests, no lint | 130+ tests, ruff, CI matrix, schema validation, retry layer, QA gate |
+| Operations | DB committed on every run | atomic renders, cached DB, watchdog, pinned actions and constraints |
 
 ---
 
@@ -41,6 +42,11 @@ ai-studio/
 │   ├── db.py                  SQLite jobs (lazy schema)
 │   ├── script_engine.py       Gemini scripts + SEO
 │   ├── notify.py              Telegram alerts
+│   ├── resilience.py          retry/backoff for network + model calls
+│   ├── validation.py          script schema checks + normalisation
+│   ├── qa.py                  publish-readiness gate (silence, duration, streams)
+│   ├── artifacts.py           atomic renders, timestamped filenames
+│   ├── hardware.py            CPU/GPU detection + Iris Xe guidance
 │   ├── cli.py                 `run.py` implementation
 │   ├── daily.py               scheduled runner (`run_daily.py`)
 │   ├── content/               built-in demo scripts
@@ -64,9 +70,9 @@ ai-studio/
 ├── tools/preview_voice.py     A/B voice profiles
 ├── tests/                     unit + opt-in end-to-end render tests
 ├── assets/{music,clips,voices}/
-├── .github/workflows/         make-shorts, make-longform, tests
+├── .github/workflows/         make-shorts, make-longform, tests, watchdog, audit
 ├── run.py  run_daily.py       compatibility entry points
-├── requirements*.txt
+├── requirements*.txt  constraints.txt
 └── pyproject.toml
 ```
 
@@ -111,7 +117,81 @@ STUDIO_OFFLINE=1 python run.py demo --engine silent
 
 ---
 
-## 4. Chatterbox: the human voice
+## 4. Hardware: normal laptops, Intel Iris Xe, CPU-only
+
+Two commands tell you what this machine can actually do:
+
+```bash
+python run.py doctor    # CPU / GPU / RAM / torch / engine availability + advice
+python run.py bench     # real synthesis speed, extrapolated to Short and long-form
+```
+
+**The honest bit about integrated graphics.** Chatterbox is a PyTorch model with
+CUDA, Apple-MPS and (with Intel extensions) XPU paths. An **Intel Iris Xe** has
+no supported acceleration path, so narration runs on the **CPU**; the iGPU only
+helps with video decode/playback. That is perfectly usable for a daily Short and
+slow for a 7-minute video:
+
+| Setup | Engine | 30 s Short | 7 min long-form |
+| --- | --- | --- | --- |
+| Iris Xe laptop, multilingual 500M | `chatterbox` (CPU) | ~2–5 min | ~25–50 min |
+| Iris Xe laptop, nano 110M (English) | `chatterbox` (CPU) | <1 min | ~5–8 min |
+| Laptop, no model | `edge` | seconds | ~1 min |
+| Free/cheap GPU box (Colab, Kaggle, RunPod) | `chatterbox-http` | ~30 s–2 min | ~3–8 min |
+
+These are typical ranges, not promises — run `bench` for your own numbers.
+
+### 4.1 Recommended setup for a laptop
+
+**A. Best Hindi voice, laptop only (slow but unattended-friendly)**
+
+```bash
+pip install -r requirements-voice.txt
+export VOICE_ENGINE=chatterbox CHATTERBOX_DEVICE=cpu
+export CHATTERBOX_MODEL=multilingual
+export CHATTERBOX_THREADS=4     # leave cores for ffmpeg; 0 = all cores
+export VOICE_PROFILE=fast
+python run.py shorts "Inflation kya hai" --profile fast
+```
+
+Schedule Shorts overnight or via GitHub Actions; do long-form when the laptop is
+plugged in. The pipeline caches each sentence, so a re-render after a visual
+change is nearly free.
+
+**B. Fastest good Hindi voice — borrow a GPU**
+
+Run any Chatterbox HTTP server (e.g. `chatterbox-tts-api`, port 4123) on Colab,
+Kaggle, a gaming PC or a cheap cloud GPU, then point the laptop at it:
+
+```bash
+export VOICE_ENGINE=chatterbox-http
+export CHATTERBOX_API_URL=http://<gpu-host>:4123
+```
+
+Nothing else changes: same profiles, same pacing, same captions.
+
+**C. Zero-install fallback**
+
+```bash
+export VOICE_ENGINE=edge   # seconds per video, less human
+```
+
+### 4.2 Laptop tuning knobs
+
+| Variable | Why |
+| --- | --- |
+| `CHATTERBOX_THREADS=4` | bounds PyTorch intra-op threads so ffmpeg still gets CPU |
+| `CHATTERBOX_MODEL=nano` | 110M English-only model, ~3× faster than realtime on 8 cores |
+| `VOICE_PROFILE=fast` | shorter gaps + tempo, no extra model cost |
+| `VOICE_SYNTH_ATTEMPTS=3` | automatic retry per sentence |
+| `STUDIO_OFFLINE=1` | skip image APIs (uses gradient placeholders) for quick tests |
+| `CHATTERBOX_IPEX=1` | only if `intel-extension-for-pytorch` is installed; stays fp32 for stability |
+
+Keep ~4 GB RAM free while the multilingual model runs; close other browser tabs
+during a build. On a 2-core machine expect the long-form estimate to be painful —
+that is exactly what `bench` is for.
+
+## 5. Chatterbox: the human voice
 
 Chatterbox is a 0.5B-parameter open TTS model with zero-shot voice cloning and
 two expressive knobs:
@@ -184,7 +264,7 @@ For the dedicated Hindi pack, ship the checkpoint folder and use
 
 ---
 
-## 5. How the humanisation works
+## 6. How the humanisation works
 
 `studio/voice/humanize.py` + `assemble.py` do the work so every engine sounds
 alive:
@@ -225,14 +305,16 @@ python tools/preview_voice.py --engine chatterbox --reference assets/voices/refe
 
 ---
 
-## 6. CLI
+## 7. CLI
 
 | Command | What it does |
 | --- | --- |
 | `python run.py doctor` | environment, ffmpeg, engines, credentials, topics |
 | `python run.py shorts "topic" [--category finance] [--profile fast] [--engine auto]` | generate script → render Short |
 | `python run.py long "topic" --minutes 7 [--profile natural]` | long-form video |
-| `python run.py voice "text" -o out.wav [--profile fast]` | voice sample only |
+| `python run.py voice "text" -o out.wav [--profile fast] [--device cpu]` | voice sample only |
+| `python run.py bench [--engine …] [--device …]` | measure real synthesis speed on this machine |
+| `python run.py qa output/<file>.mp4 [--kind shorts] [--expected 32.5]` | publish-readiness report |
 | `python run.py demo [--format shorts\|long]` | built-in script, no Gemini |
 | `python run.py list` | recent jobs |
 | `python run.py upload --id 3` | upload a built video (title, tags, playlist, comment) |
@@ -243,7 +325,7 @@ python tools/preview_voice.py --engine chatterbox --reference assets/voices/refe
 
 ---
 
-## 7. Configuration
+## 8. Configuration
 
 All variables are optional; see `.env.example` for the annotated list.
 
@@ -256,17 +338,19 @@ All variables are optional; see `.env.example` for the annotated list.
 | Channel | `CHANNEL_NAME`, `PRIVACY`, `PUBLISH_AT_IST` |
 | YouTube | `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` |
 | Alerts | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
+| CPU tuning | `CHATTERBOX_THREADS`, `CHATTERBOX_IPEX`, `STUDIO_SKIP_TORCH_PROBE` |
+| Reliability | `VOICE_SYNTH_ATTEMPTS`, `VOICE_RETRY_DELAY`, `SKIP_QA`, `STUDIO_LOG_FORMAT`, `STUDIO_RUN_ID` |
 | Paths | `AI_STUDIO_HOME`, `AI_STUDIO_OUTPUT_DIR`, `AI_STUDIO_ASSETS_DIR` |
 
 ---
 
-## 8. Tests and CI
+## 9. Tests and CI
 
 ```bash
 pip install -r requirements-dev.txt
 ruff check studio tests tools
-pytest -q                              # 114 tests, ~5 s
-STUDIO_SLOW_TESTS=1 pytest tests/test_pipeline_slow.py   # real ffmpeg render
+pytest -q                              # 174 tests, ~6 s
+STUDIO_SLOW_TESTS=1 pytest   # + real ffmpeg render, ~27 s
 ```
 
 The suite covers sentence splitting, Hindi/English number spelling, pause and
@@ -275,13 +359,14 @@ cfg weight, voice reference, older-API fallbacks) using a faked model, the
 remote-server payload, caption alignment, DB/config behaviour and the package
 layout. `tests/test_pipeline_slow.py` renders a real MP4 with the silent engine.
 
-CI: `.github/workflows/tests.yml` (lint + tests + render).
-Scheduling: `make-shorts.yml` (daily 9:00 IST) and `make-longform.yml`
-(manual, with `engine`/`profile`/`minutes` inputs).
+CI: `.github/workflows/tests.yml` runs lint, the unit suite and a real MP4
+render on Python 3.10/3.11/3.12. `lock-check.yml` audits the pinned
+dependencies weekly. Scheduling: `make-shorts.yml` (daily 9:00 IST),
+`make-longform.yml` (manual) and `watchdog.yml` (freshness alert).
 
 ---
 
-## 9. Publishing
+## 10. Publishing
 
 1. Create an OAuth client (Desktop) in Google Cloud, enable *YouTube Data API v3*.
 2. Authorise once with scope `https://www.googleapis.com/auth/youtube`
@@ -294,7 +379,38 @@ Scheduling: `make-shorts.yml` (daily 9:00 IST) and `make-longform.yml`
 
 ---
 
-## 10. Troubleshooting
+## 11. Production checklist
+
+What the repository already enforces for you:
+
+| Concern | Implementation |
+| --- | --- |
+| Malformed LLM output | `studio/validation.py` normalises scenes/sections and raises before any media is generated |
+| Transient Gemini/TTS/image errors | `studio/resilience.py` exponential backoff on 429/5xx/timeouts and per-sentence retries |
+| Half-written videos | `studio/artifacts.py` writes to a temp file and renames atomically |
+| Silent or corrupt uploads | `studio/qa.py` blocks the upload unless streams, duration, orientation and audio level pass |
+| State between runs | SQLite restored/saved with `actions/cache`, `topics.json` committed by the bot |
+| Missed daily run | `watchdog.yml` fails and alerts if nothing was published in 26 h |
+| Reproducible installs | `constraints.txt`, weekly `pip-audit` workflow, GitHub Actions pinned to commit SHAs |
+| Debuggable logs | `STUDIO_LOG_FORMAT=json` with a `STUDIO_RUN_ID`, render artifacts kept 14 days |
+
+Checks worth doing after changing engine, profile or channel:
+
+```bash
+python run.py doctor                 # hardware + engines + credentials
+python run.py voice "test line" -o /tmp/t.wav --profile fast
+python run.py qa output/<file>.mp4   # pass/fail report
+```
+
+Operator duties that stay manual:
+
+* review `topics.json` and set `approved: false` on anything off-brand;
+* keep the YouTube refresh token and Telegram bot alive (watchdog catches silence);
+* keep a licensed music folder in `assets/music` and note each track's licence;
+* watch the YouTube quota — one upload costs ~1600 of the 10 000 daily units;
+* spot-check one video after upgrading models or changing voice references.
+
+## 12. Troubleshooting
 
 | Symptom | Fix |
 | --- | --- |
@@ -308,7 +424,7 @@ Scheduling: `make-shorts.yml` (daily 9:00 IST) and `make-longform.yml`
 
 ---
 
-## 11. Credits
+## 13. Credits
 
 * [Chatterbox](https://github.com/resemble-ai/chatterbox) by Resemble AI (MIT) —
   model, watermarking and reference recordings stay subject to its disclaimer.

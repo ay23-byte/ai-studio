@@ -1,10 +1,24 @@
+"""Gemini script generation with retries and schema validation.
+
+Two layers of protection:
+
+* :func:`_ask_gemini` retries transient HTTP failures (429/5xx/timeouts) with
+  exponential backoff;
+* :func:`_ask_json` re-prompts when the model returns prose instead of JSON,
+  and the result is normalised by :mod:`studio.validation` before anything
+  expensive happens.
+"""
+
+from __future__ import annotations
+
 import json
-import time
 
 import requests
 
 from studio import config
 from studio.logs import get_logger
+from studio.resilience import RetryExhausted, retry_call
+from studio.validation import validate_longform_script, validate_shorts_script
 
 log = get_logger(__name__)
 
@@ -37,46 +51,124 @@ Sound like a real person speaking, not an essay.
 Return ONLY valid JSON:
 {{"title":"...","description":"100 word SEO description","tags":["..."],"hook":"...","category":"{category}","format":"longform","sections":[{{"title":"...","narration":"...","visuals":["..."],"image":"...","keywords":["..."]}}]}}"""
 
+RETRYABLE_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
+
+
+class GeminiError(RuntimeError):
+    """Gemini could not produce a usable answer."""
+
+
+class TransientHTTPError(GeminiError):
+    """A retryable HTTP status was returned."""
+
+
+def _post(prompt: str) -> str:
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{config.GEMINI_MODEL}:generateContent"
+    )
+    response = requests.post(
+        url,
+        headers={"x-goog-api-key": config.GEMINI_API_KEY, "Content-Type": "application/json"},
+        json={
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.85, "maxOutputTokens": 4096},
+        },
+        timeout=120,
+    )
+    if response.status_code in RETRYABLE_STATUS:
+        raise TransientHTTPError(f"Gemini HTTP {response.status_code}")
+    if response.status_code >= 400:
+        raise GeminiError(f"Gemini HTTP {response.status_code}: {response.text[:300]}")
+
+    payload = response.json()
+    candidates = payload.get("candidates") or []
+    if not candidates:
+        raise GeminiError("Gemini returned no candidates (prompt may have been blocked)")
+    parts = (candidates[0].get("content") or {}).get("parts") or []
+    text = "".join(part.get("text", "") for part in parts)
+    if not text.strip():
+        raise GeminiError("Gemini returned empty text")
+    return text
+
+
 def _ask_gemini(prompt: str) -> str:
     if not config.GEMINI_API_KEY:
-        raise RuntimeError("GEMINI_API_KEY not set. Get a free key at aistudio.google.com")
-    url = ("https://generativelanguage.googleapis.com/v1beta/models/"
-           f"{config.GEMINI_MODEL}:generateContent")
-    for attempt in range(3):
-        r = requests.post(url,
-            headers={"x-goog-api-key": config.GEMINI_API_KEY, "Content-Type": "application/json"},
-            json={"contents": [{"parts": [{"text": prompt}]}],
-                  "generationConfig": {"temperature": 0.85, "maxOutputTokens": 4096}},
-            timeout=120)
-        if r.status_code == 429:
-            time.sleep(30 * (attempt + 1))
-            continue
-        r.raise_for_status()
-        return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-    raise RuntimeError("Gemini rate-limited after 3 tries")
+        raise GeminiError("GEMINI_API_KEY not set. Get a free key at aistudio.google.com")
+    try:
+        return retry_call(
+            lambda: _post(prompt),
+            attempts=4,
+            base_delay=5,
+            max_delay=60,
+            label="gemini",
+        )
+    except RetryExhausted as exc:
+        raise GeminiError(str(exc)) from exc
+
 
 def _parse(text: str) -> dict:
     text = text.strip()
-    a, b = text.find("{"), text.rfind("}")
-    if a == -1:
-        raise ValueError("No JSON in response")
-    return json.loads(text[a:b+1])
+    start, end = text.find("{"), text.rfind("}")
+    if start == -1 or end <= start:
+        raise ValueError("No JSON object in response")
+    parsed = json.loads(text[start:end + 1])
+    if not isinstance(parsed, dict):
+        raise ValueError(f"Expected a JSON object, got {type(parsed).__name__}")
+    return parsed
+
+
+def _ask_json(prompt: str, *, label: str = "script") -> dict:
+    """Ask for JSON, re-prompting once if the model wrapped it in prose."""
+    last_error: Exception | None = None
+    for attempt in range(2):
+        raw = _ask_gemini(prompt)
+        try:
+            return _parse(raw)
+        except (ValueError, json.JSONDecodeError) as exc:
+            last_error = exc
+            log.warning("%s: invalid JSON (attempt %d/2): %s", label, attempt + 1, exc)
+            prompt = (
+                prompt + "\n\nIMPORTANT: your previous answer was not valid JSON. "
+                "Reply with ONLY the JSON object, no prose, no code fences."
+            )
+    raise GeminiError(f"{label}: Gemini returned invalid JSON twice ({last_error})")
+
 
 def generate_shorts_script(topic: str, category: str = "finance") -> dict:
-    return _parse(_ask_gemini(SHORTS_PROMPT.format(topic=topic, category=category)))
+    script = _ask_json(
+        SHORTS_PROMPT.format(topic=topic, category=category), label="shorts script"
+    )
+    return validate_shorts_script(script)
 
-def generate_longform_script(topic: str, category: str = "finance",
-                              duration_min=5, duration_max=8, language="Hinglish") -> dict:
-    s = _parse(_ask_gemini(LONGFORM_PROMPT.format(
-        topic=topic, category=category,
-        duration_min=duration_min, duration_max=duration_max, language=language)))
-    s["format"] = "longform"
-    return s
+
+def generate_longform_script(
+    topic: str,
+    category: str = "finance",
+    duration_min: int = 5,
+    duration_max: int = 8,
+    language: str = "Hinglish",
+) -> dict:
+    script = _ask_json(
+        LONGFORM_PROMPT.format(
+            topic=topic, category=category,
+            duration_min=duration_min, duration_max=duration_max, language=language,
+        ),
+        label="long-form script",
+    )
+    return validate_longform_script(script)
+
+
+def generate_script(topic: str, fmt: str = "shorts", **kwargs) -> dict:
+    if fmt in ("long", "longform"):
+        return generate_longform_script(topic, **kwargs)
+    return generate_shorts_script(topic, **kwargs)
+
 
 def generate_seo(script: dict) -> dict:
     title = script.get("title", "")
-    cat = script.get("category", "")
-    tags = script.get("tags", ["finance", "hinglish", "education"])
+    cat = script.get("category", "") or "education"
+    tags = script.get("tags") or ["finance", "hinglish", "education"]
     titles = [
         f"{title} | Power Codex",
         f"{title} - Aasaan Hinglish mein",
@@ -84,14 +176,23 @@ def generate_seo(script: dict) -> dict:
         f"{title} | {cat.title()} Explained",
         f"Samjho {title} | Hindi mein",
     ]
-    chapters, t = [], 0
-    for sec in script.get("sections", []):
-        chapters.append(f"{t//60:02d}:{t%60:02d} {sec['title']}")
-        t += 120
+    chapters, cursor = [], 0
+    for section in script.get("sections", []):
+        minutes = cursor // 60
+        seconds = cursor % 60
+        chapters.append(f"{minutes:02d}:{seconds:02d} {section.get('title', '')}")
+        cursor += 120
     return {
         "titles": titles,
         "tags": tags + [cat, "power codex", "hindi education"],
         "chapters": chapters,
         "pinned_comment": "कौन सा concept अगले video में समझाएँ? Comment में बताओ 👇",
-        "hashtags": [f"#{t.replace(' ','')}" for t in tags[:5]],
+        "hashtags": [f"#{tag.replace(' ', '')}" for tag in tags[:5]],
     }
+
+
+__all__ = [
+    "GeminiError", "TransientHTTPError", "SHORTS_PROMPT", "LONGFORM_PROMPT",
+    "generate_shorts_script", "generate_longform_script", "generate_script",
+    "generate_seo",
+]

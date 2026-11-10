@@ -13,9 +13,10 @@ import json
 import os
 import platform
 import subprocess
+import time
 from pathlib import Path
 
-from studio import __version__, config
+from studio import __version__, config, hardware, qa
 from studio.content import DEMO_LONG, DEMO_SHORT
 from studio.db import get_video, init_db, list_videos, save_video, update_video
 from studio.logs import configure, get_logger
@@ -49,7 +50,7 @@ def cmd_shorts(args: argparse.Namespace) -> int:
     )
     out = build_shorts(
         script, vid, engine=args.engine, profile=args.profile,
-        voice_reference=args.reference,
+        voice_reference=args.reference, device=args.device,
     )
     send(f"✅ Shorts built: {script.get('title')}\n{out}")
     print(f"\nDone → {out}")
@@ -72,7 +73,7 @@ def cmd_long(args: argparse.Namespace) -> int:
     )
     out = build_longform(
         script, vid, engine=args.engine, profile=args.profile,
-        voice_reference=args.reference,
+        voice_reference=args.reference, device=args.device,
     )
     send(f"✅ Long-form built: {script.get('title')}\n{out}")
     print(f"\nDone → {out}")
@@ -140,7 +141,7 @@ def cmd_voice(args: argparse.Namespace) -> int:
     out = Path(args.out)
     track = preview(
         args.text, out, language=args.language, engine=args.engine,
-        profile=args.profile, reference=args.reference,
+        profile=args.profile, reference=args.reference, device=args.device,
     )
     print(f"\nVoice sample → {track.path}")
     print(f"engine={track.engine}  profile={track.profile}  duration={track.duration:.2f}s")
@@ -169,6 +170,20 @@ def cmd_doctor(_: argparse.Namespace) -> int:
     else:
         print("ffmpeg       : MISSING  (pip install imageio-ffmpeg)")
     print(f"ffprobe      : {ffmpeg.ffprobe_bin() or 'not found (fallback timing in use)'}")
+
+    profile = hardware.detect()
+    print("\nhardware")
+    print(f"  os      : {profile.os_name}")
+    print(f"  cpu     : {profile.cpu}")
+    print(f"            {profile.logical_cores or '?'} threads"
+          f" / {profile.physical_cores or '?'} cores"
+          f" / {profile.ram_gb or '?'} GB RAM")
+    print(f"  gpu     : {', '.join(profile.gpus) or 'none detected'}")
+    print(f"  torch   : {profile.torch_version or 'not installed'}"
+          f"   device={profile.device}"
+          f"   cuda={profile.cuda} mps={profile.mps} xpu={profile.xpu}")
+    for tip in hardware.recommendations(profile):
+        print(f"  • {tip}")
 
     print("\nvoice engines")
     for item in available_engines():
@@ -201,6 +216,60 @@ def cmd_doctor(_: argparse.Namespace) -> int:
     return 0
 
 
+BENCH_TEXT = (
+    "Aaj hum ek simple example se samjhenge ki inflation kya hota hai. "
+    "Kya aapne kabhi socha hai ki paise ki value chupchap kyun ghat jaati hai?"
+)
+
+
+def cmd_bench(args: argparse.Namespace) -> int:
+    """Measure realtime factor so slow hardware is discovered before a build."""
+    text = args.text or BENCH_TEXT
+    started = time.perf_counter()
+    track = preview(
+        text, config.BUILD_DIR / "bench" / "bench.wav",
+        language=args.language, engine=args.engine,
+        profile=args.profile or "natural", reference=args.reference,
+        device=args.device,
+    )
+    elapsed = time.perf_counter() - started
+    audio = max(track.duration, 0.1)
+    factor = elapsed / audio
+
+    print(f"\nengine      : {track.engine}")
+    print(f"profile     : {track.profile}")
+    print(f"audio built : {audio:.1f}s")
+    print(f"wall time   : {elapsed:.1f}s  (includes ffmpeg assembly)")
+    print(f"realtime x  : {factor:.2f}x slower than realtime")
+
+    def estimate(seconds: float) -> str:
+        workload = seconds * factor
+        if workload >= 90:
+            return f"{workload / 60:.1f} min"
+        return f"{workload:.0f} s"
+
+    print(f"est. Short  : {estimate(30)} - {estimate(60)} for 30-60s of narration")
+    print(f"est. long   : {estimate(300)} for 5 min of narration")
+
+    if factor > 3:
+        print("\nAdvice: this machine is CPU-bound. Try CHATTERBOX_MODEL=nano for "
+              "English, VOICE_ENGINE=edge for speed, or point CHATTERBOX_API_URL "
+              "at a GPU server for Hindi.")
+    elif factor > 1.2:
+        print("\nAdvice: usable for daily Shorts; long-form will take a while.")
+    else:
+        print("\nAdvice: fast enough for unattended long-form builds.")
+    return 0
+
+
+def cmd_qa(args: argparse.Namespace) -> int:
+    report = qa.inspect_video(
+        args.path, expected_seconds=args.expected, kind=args.kind
+    )
+    print(report.summary())
+    return 0 if report.ok else 1
+
+
 # --------------------------------------------------------------------------- #
 # parser
 # --------------------------------------------------------------------------- #
@@ -208,6 +277,8 @@ def _add_voice_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--engine", default=None,
                         choices=["auto", "chatterbox", "chatterbox-http", "edge", "silent"],
                         help="TTS backend (default: VOICE_ENGINE or auto)")
+    parser.add_argument("--device", default=None, choices=["cpu", "cuda", "mps", "xpu"],
+                        help="torch device for local Chatterbox (default: auto-detect)")
     parser.add_argument("--profile", default=None, choices=sorted(PROFILES),
                         help="pacing profile; shorts default to 'fast'")
     parser.add_argument("--reference", default=None,
@@ -260,6 +331,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     doctor = sub.add_parser("doctor", help="diagnose environment and engines")
     doctor.set_defaults(func=cmd_doctor)
+
+    bench = sub.add_parser("bench", help="measure voice speed on this machine")
+    bench.add_argument("--text", default=None, help="custom passage (defaults to a sample)")
+    _add_voice_args(bench)
+    bench.set_defaults(func=cmd_bench)
+
+    check = sub.add_parser("qa", help="inspect a rendered video before publishing")
+    check.add_argument("path")
+    check.add_argument("--kind", choices=["shorts", "longform"], default=None)
+    check.add_argument("--expected", type=float, default=None,
+                       help="expected duration in seconds")
+    check.set_defaults(func=cmd_qa)
     return parser
 
 
@@ -267,6 +350,7 @@ def _cmd_demo(args: argparse.Namespace) -> int:
     namespace = argparse.Namespace(
         topic="demo", category="finance", language=args.language, demo=True,
         engine=args.engine, profile=args.profile, reference=args.reference,
+        device=args.device,
     )
     if args.format == "shorts":
         return cmd_shorts(namespace)
