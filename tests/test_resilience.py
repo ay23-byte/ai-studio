@@ -83,3 +83,34 @@ def test_attempts_clamped_to_one():
 
     with pytest.raises(RetryExhausted):
         retry_call(fail, attempts=0, label="clamped")
+
+
+def test_give_up_on_stops_retrying_immediately():
+    calls = []
+
+    class Fatal(Exception):
+        pass
+
+    def never_works():
+        calls.append(1)
+        raise Fatal("retired model")
+
+    with pytest.raises(Fatal):
+        retry_call(never_works, attempts=4, label="fatal", give_up_on=(Fatal,))
+    assert len(calls) == 1
+
+
+def test_give_up_on_does_not_block_other_retries():
+    calls = []
+
+    def flaky():
+        calls.append(1)
+        if len(calls) < 2:
+            raise ConnectionError("blip")
+        return "ok"
+
+    class Fatal(Exception):
+        pass
+
+    assert retry_call(flaky, attempts=3, label="mixed", give_up_on=(Fatal,)) == "ok"
+    assert len(calls) == 2

@@ -37,6 +37,7 @@ def retry_call(
     max_delay: float = 30.0,
     jitter: float = 0.25,
     exceptions: tuple[type[BaseException], ...] = (Exception,),
+    give_up_on: tuple[type[BaseException], ...] = (),
     label: str = "operation",
     on_retry: Callable[[int, BaseException, float], None] | None = None,
 ) -> T:
@@ -44,12 +45,18 @@ def retry_call(
 
     ``KeyboardInterrupt``/``SystemExit`` are never swallowed because the
     default ``exceptions`` only covers ``Exception``.
+
+    ``give_up_on`` lists errors that must not be retried at all — a retired
+    Gemini model (HTTP 404) or a rejected credential cannot succeed on a second
+    attempt, so retrying only wastes the backoff budget.
     """
     attempts = max(1, int(attempts))
     last_error: BaseException | None = None
     for attempt in range(1, attempts + 1):
         try:
             return func()
+        except give_up_on:
+            raise
         except exceptions as exc:  # noqa: PERF203 - retry loop by design
             last_error = exc
             if attempt >= attempts:

@@ -1,12 +1,16 @@
 """Gemini script generation with retries and schema validation.
 
-Two layers of protection:
+Three layers of protection:
 
-* :func:`_ask_gemini` retries transient HTTP failures (429/5xx/timeouts) with
-  exponential backoff;
+* :func:`_ask_gemini` retries transient failures (429/5xx/timeouts) with
+  exponential backoff, and falls back to the next configured model when a model
+  is retired (HTTP 404) or still failing after its retries;
 * :func:`_ask_json` re-prompts when the model returns prose instead of JSON,
   and the result is normalised by :mod:`studio.validation` before anything
   expensive happens.
+
+Model fallback exists because Google retires model ids: a pinned, retired model
+returns 404 on every request, and retrying the same id can never succeed.
 """
 
 from __future__ import annotations
@@ -62,10 +66,36 @@ class TransientHTTPError(GeminiError):
     """A retryable HTTP status was returned."""
 
 
-def _post(prompt: str) -> str:
+class ModelUnavailableError(GeminiError):
+    """This model id does not exist for the key (retired, renamed or wrong)."""
+
+
+def _is_model_unavailable(status: int, body: str) -> bool:
+    """A retired model answers 404, or 400 with an explicit explanation."""
+    if status == 404:
+        return True
+    if status != 400:
+        return False
+    text = body.lower()
+    return "no longer available" in text or "is not found" in text or "not supported" in text
+
+
+def configured_models() -> list[str]:
+    """Primary model followed by the fallbacks, de-duplicated, order preserved."""
+    raw = [config.GEMINI_MODEL]
+    raw += (config.GEMINI_FALLBACK_MODELS or "").split(",")
+    models: list[str] = []
+    for name in raw:
+        name = name.strip()
+        if name and name not in models:
+            models.append(name)
+    return models
+
+
+def _post(model: str, prompt: str) -> str:
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{config.GEMINI_MODEL}:generateContent"
+        f"{model}:generateContent"
     )
     response = requests.post(
         url,
@@ -76,6 +106,11 @@ def _post(prompt: str) -> str:
         },
         timeout=120,
     )
+    if _is_model_unavailable(response.status_code, response.text or ""):
+        raise ModelUnavailableError(
+            f"Gemini model {model!r} is unavailable "
+            f"(HTTP {response.status_code}): {(response.text or '')[:200]}"
+        )
     if response.status_code in RETRYABLE_STATUS:
         raise TransientHTTPError(f"Gemini HTTP {response.status_code}")
     if response.status_code >= 400:
@@ -95,16 +130,38 @@ def _post(prompt: str) -> str:
 def _ask_gemini(prompt: str) -> str:
     if not config.GEMINI_API_KEY:
         raise GeminiError("GEMINI_API_KEY not set. Get a free key at aistudio.google.com")
-    try:
-        return retry_call(
-            lambda: _post(prompt),
-            attempts=4,
-            base_delay=5,
-            max_delay=60,
-            label="gemini",
-        )
-    except RetryExhausted as exc:
-        raise GeminiError(str(exc)) from exc
+
+    models = configured_models()
+    failures: list[str] = []
+    for index, model in enumerate(models, start=1):
+        try:
+            return retry_call(
+                lambda m=model: _post(m, prompt),
+                attempts=4,
+                base_delay=5,
+                max_delay=60,
+                give_up_on=(ModelUnavailableError,),
+                label=f"gemini[{model}]",
+            )
+        except ModelUnavailableError as exc:
+            # Retrying a retired id wastes minutes; move to the next model now.
+            log.warning(
+                "gemini: %s unavailable (model %d/%d), switching to the next model: %s",
+                model, index, len(models), exc,
+            )
+            failures.append(str(exc))
+        except RetryExhausted as exc:
+            log.warning(
+                "gemini: %s still failing after retries (model %d/%d): %s",
+                model, index, len(models), exc.last_error,
+            )
+            failures.append(f"{model}: {exc.last_error}")
+    raise GeminiError(
+        "Gemini failed with every configured model ("
+        + ", ".join(models)
+        + "): "
+        + " | ".join(failures)
+    )
 
 
 def _parse(text: str) -> dict:
