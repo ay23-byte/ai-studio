@@ -103,6 +103,46 @@ def test_invalid_youtube_oauth_fails_cleanly_without_marking_video_uploaded(
     assert any("replace YT_REFRESH_TOKEN" in message for message in notifications)
 
 
+def test_post_upload_scope_error_keeps_id_and_never_retries_upload(tmp_path, monkeypatch):
+    import studio.publishing as publishing
+    from studio.db import get_video
+    from studio.publishing import YouTubeAuthError
+
+    job, video = _built_video(tmp_path)
+    monkeypatch.setattr(
+        qa,
+        "inspect_video",
+        lambda *a, **k: qa.QAReport(
+            path=video,
+            checks=[qa.Check("audio/video", True, "ok")],
+            duration=12.0,
+            mean_volume_db=-18.0,
+        ),
+    )
+    uploads = []
+
+    def fake_upload(*args, **kwargs):
+        uploads.append(True)
+        return "already-uploaded-id"
+
+    monkeypatch.setattr(publishing, "upload", fake_upload)
+    monkeypatch.setattr(
+        publishing,
+        "wait_processed",
+        lambda video_id: (_ for _ in ()).throw(
+            YouTubeAuthError(
+                f"video id {video_id} is already saved; do not upload it again"
+            )
+        ),
+    )
+    monkeypatch.setattr(daily, "send", lambda *a, **k: None)
+
+    assert daily.upload_latest() is False
+    assert get_video(job)["youtube_id"] == "already-uploaded-id"
+    assert daily.upload_latest() is False
+    assert len(uploads) == 1
+
+
 def test_missing_file_is_recorded(tmp_path):
     job = save_video("gone", "shorts", "hindi", "finance", {})
     update_video(job, video_path=str(tmp_path / "missing.mp4"))

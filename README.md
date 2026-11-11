@@ -380,8 +380,11 @@ are the production builders. Browser-only instructions:
 ## 10. Publishing
 
 1. Create an OAuth client (Desktop) in Google Cloud, enable *YouTube Data API v3*.
-2. Authorise once with scope `https://www.googleapis.com/auth/youtube`
+2. Authorise with the full scope `https://www.googleapis.com/auth/youtube`
    (`google-auth-oauthlib`'s `InstalledAppFlow`), then store the refresh token.
+   Upload-only scope is insufficient: this app also reads channel/video processing
+   status and manages playlists/comments. An existing refresh token cannot gain
+   scopes by itself; repeat consent and replace the refresh-token secret.
 3. Put `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` in `.env` or
    repository secrets.
 4. `PRIVACY=private` plus `PUBLISH_AT_IST=19:00` schedules the premiere; leave
@@ -401,10 +404,13 @@ YouTube channel with the same OAuth client and the
 screen left in **Testing**, Google refresh tokens expire after 7 days; publish
 the consent screen (or expect to re-authorise and rotate the secret).
 
-The failed upload is not marked as uploaded: OAuth refresh happens before the
-YouTube upload request. After updating the secret, rerun the failed
-`make-shorts`/`make-longform` run's **Upload to YouTube** step (or dispatch
-`run_daily.py --upload-latest` again); the already-built video remains queued.
+An `invalid_grant` occurs before YouTube receives the video, so that job remains
+queued. A separate scope failure while checking processing status can occur
+**after** YouTube accepted the upload; the uploader saves the returned video ID
+before polling and excludes it from future upload attempts. Verify that video in
+YouTube Studio—do not upload it again. New uploads now preflight channel-read
+permission before sending video bytes, so an upload-only grant is rejected
+safely before upload.
 
 ---
 

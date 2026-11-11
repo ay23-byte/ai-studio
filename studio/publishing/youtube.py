@@ -15,6 +15,10 @@ from studio.logs import get_logger
 
 log = get_logger(__name__)
 
+# This broader scope is required not just to insert videos, but also to read
+# processing status and manage the channel's playlists/comments after upload.
+YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube"
+
 
 class YouTubeAuthError(RuntimeError):
     """YouTube OAuth credentials cannot be refreshed for this account."""
@@ -26,7 +30,7 @@ def _creds():
         from google.oauth2.credentials import Credentials
     except ImportError as exc:  # pragma: no cover - optional extra
         raise RuntimeError(
-            "YouTube dependencies missing: pip install -r requirements-publish.txt"
+            "YouTube dependencies missing: pip install -r requirements.txt"
         ) from exc
 
     missing = [
@@ -77,9 +81,43 @@ def _youtube():
         from googleapiclient.discovery import build
     except ImportError as exc:  # pragma: no cover - optional extra
         raise RuntimeError(
-            "YouTube dependencies missing: pip install -r requirements-publish.txt"
+            "YouTube dependencies missing: pip install -r requirements.txt"
         ) from exc
     return build("youtube", "v3", credentials=_creds(), cache_discovery=False)
+
+
+def _is_insufficient_scope(exc: Exception) -> bool:
+    """Recognise Google's 403 insufficient-permission response safely."""
+    response = getattr(exc, "resp", None)
+    status = getattr(response, "status", None) or getattr(response, "status_code", None)
+    if status != 403:
+        return False
+    payload = getattr(exc, "content", b"")
+    if isinstance(payload, bytes):
+        payload = payload.decode("utf-8", errors="replace")
+    detail = f"{exc} {payload}".casefold()
+    return "insufficient" in detail and ("permission" in detail or "scope" in detail)
+
+
+def _require_channel_read_access(youtube) -> None:
+    """Check read scope before uploading bytes, so a narrow grant fails safely."""
+    try:
+        channels = youtube.channels().list(part="id", mine=True).execute()
+    except Exception as exc:
+        if _is_insufficient_scope(exc):
+            raise YouTubeAuthError(
+                "The YouTube OAuth token can upload but cannot read channel/video "
+                f"status. Re-authorise the intended channel with scope {YOUTUBE_SCOPE}, "
+                "then replace only the YT_REFRESH_TOKEN GitHub Actions secret. "
+                "Keep YT_CLIENT_ID and YT_CLIENT_SECRET unchanged unless that OAuth "
+                "client was changed. No video was uploaded."
+            ) from exc
+        raise
+    if not channels.get("items"):
+        raise YouTubeAuthError(
+            "The current YouTube OAuth account has no accessible channel. "
+            "Re-authorise the intended channel before uploading; no video was uploaded."
+        )
 
 
 def _publish_time() -> str | None:
@@ -107,6 +145,7 @@ def upload(
     from googleapiclient.http import MediaFileUpload
 
     youtube = _youtube()
+    _require_channel_read_access(youtube)
     status = {
         "selfDeclaredMadeForKids": False,
         "containsSyntheticMedia": contains_synthetic,
@@ -181,10 +220,31 @@ def post_comment(video_id: str, text: str) -> None:
 
 def wait_processed(video_id: str, max_wait: int = 600) -> str:
     """Poll until YouTube finishes processing (``ok``/error state)."""
-    youtube = _youtube()
+    try:
+        youtube = _youtube()
+    except YouTubeAuthError as exc:
+        raise YouTubeAuthError(
+            "YouTube accepted the upload, but OAuth credentials could not be "
+            "refreshed to check processing. The video id is "
+            f"{video_id} and is already saved; do not upload it again. "
+            f"Re-authorise with scope {YOUTUBE_SCOPE}, then update the "
+            "YT_REFRESH_TOKEN secret."
+        ) from exc
     started = time.time()
     while time.time() - started < max_wait:
-        listing = youtube.videos().list(part="status", id=video_id).execute()
+        try:
+            listing = youtube.videos().list(part="status", id=video_id).execute()
+        except Exception as exc:
+            if _is_insufficient_scope(exc):
+                raise YouTubeAuthError(
+                    "YouTube accepted the upload, but this OAuth token cannot read "
+                    f"video processing status. The video id is {video_id} and is "
+                    "already saved; do not upload it again. Re-authorise the intended "
+                    f"channel with scope {YOUTUBE_SCOPE}, then replace the "
+                    "YT_REFRESH_TOKEN GitHub Actions secret. Keep the existing "
+                    "YT_CLIENT_ID and YT_CLIENT_SECRET unless the OAuth client changed."
+                ) from exc
+            raise
         items = listing.get("items", [])
         if not items:
             return "not_found"
