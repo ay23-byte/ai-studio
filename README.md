@@ -381,14 +381,13 @@ are the production builders. Browser-only instructions:
 
 1. Create an OAuth client (Desktop) in Google Cloud, enable *YouTube Data API v3*.
 2. Authorise with the **full YouTube scope**
-   `https://www.googleapis.com/auth/youtube` (not only
-   `youtube.upload`). The refresh token's granted scopes are fixed when it is
-   created; changing code or rerunning Actions cannot add scopes to an old token.
-   If status polling reports `insufficient authentication scopes`, repeat the
-   OAuth consent flow for the same YouTube channel and same OAuth client, approve
-   this scope, and replace the `YT_REFRESH_TOKEN` Actions secret. Keep the
-   existing client ID/secret unless you intentionally created a different OAuth
-   client.
+   `https://www.googleapis.com/auth/youtube` (not only `youtube.upload`), then
+   store the refresh token. This app also reads channel/video processing status
+   and manages playlists/comments. A refresh token's granted scopes are fixed
+   when it is created; changing code or rerunning Actions cannot add scopes.
+   Re-consent for the same channel and OAuth client, then replace the
+   `YT_REFRESH_TOKEN` Actions secret. Keep the client ID/secret unless the OAuth
+   client itself changed.
 3. Put `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` in `.env` or
    repository secrets.
 4. `PRIVACY=private` plus `PUBLISH_AT_IST=19:00` schedules the premiere; leave
@@ -408,10 +407,13 @@ YouTube channel with the same OAuth client and the
 screen left in **Testing**, Google refresh tokens expire after 7 days; publish
 the consent screen (or expect to re-authorise and rotate the secret).
 
-The failed upload is not marked as uploaded: OAuth refresh happens before the
-YouTube upload request. After updating the secret, rerun the failed
-`make-shorts`/`make-longform` run's **Upload to YouTube** step (or dispatch
-`run_daily.py --upload-latest` again); the already-built video remains queued.
+An `invalid_grant` occurs before YouTube receives the video, so that job remains
+queued. A separate scope failure while checking processing status can occur
+**after** YouTube accepted the upload; the uploader saves the returned video ID
+before polling and excludes it from future upload attempts. Verify that video in
+YouTube Studio—do not upload it again. New uploads now preflight channel-read
+permission before sending video bytes, so an upload-only grant is rejected
+safely before upload.
 
 ---
 

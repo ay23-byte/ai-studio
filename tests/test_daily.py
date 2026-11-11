@@ -103,9 +103,7 @@ def test_invalid_youtube_oauth_fails_cleanly_without_marking_video_uploaded(
     assert any("replace YT_REFRESH_TOKEN" in message for message in notifications)
 
 
-def test_insufficient_read_scope_keeps_uploaded_video_id_and_never_reuploads(
-    tmp_path, monkeypatch
-):
+def test_post_upload_scope_error_keeps_id_and_never_retries_upload(tmp_path, monkeypatch):
     import studio.publishing as publishing
     from studio.db import get_video
     from studio.publishing import YouTubeAuthError
@@ -117,32 +115,36 @@ def test_insufficient_read_scope_keeps_uploaded_video_id_and_never_reuploads(
         lambda *a, **k: qa.QAReport(
             path=video,
             checks=[qa.Check("audio/video", True, "ok")],
-            duration=33.5,
-            mean_volume_db=-17.8,
+            duration=12.0,
+            mean_volume_db=-18.0,
         ),
     )
-    uploaded = []
+    uploads = []
+
+    def fake_upload(*args, **kwargs):
+        uploads.append(True)
+        return "already-uploaded-id"
+
+    monkeypatch.setattr(publishing, "upload", fake_upload)
     monkeypatch.setattr(
-        publishing, "upload",
-        lambda *a, **k: uploaded.append("yt-video-123") or "yt-video-123",
-    )
-    monkeypatch.setattr(
-        publishing, "wait_processed",
+        publishing,
+        "wait_processed",
         lambda video_id: (_ for _ in ()).throw(
             YouTubeAuthError(
-                "upload already saved; do not upload it again; replace YT_REFRESH_TOKEN"
+                f"video id {video_id} is already saved; do not upload it again"
             )
         ),
     )
     notifications = []
-    monkeypatch.setattr(daily, "send", lambda message: notifications.append(message))
+    monkeypatch.setattr(daily, "send", lambda *a, **k: notifications.append(a[0]))
 
     assert daily.upload_latest() is False
     saved = get_video(job)
-    assert saved["youtube_id"] == "yt-video-123"
+    assert saved["youtube_id"] == "already-uploaded-id"
     assert saved["status"] == "uploaded"
-    assert uploaded == ["yt-video-123"]
     assert any("do not upload it again" in message for message in notifications)
+    assert daily.upload_latest() is False
+    assert len(uploads) == 1
 
 
 def test_missing_file_is_recorded(tmp_path):
