@@ -68,6 +68,11 @@ def _looks_like_network_error(message: str) -> bool:
     return any(hint in text for hint in _NETWORK_HINTS)
 
 
+def _is_no_audio_error(error: BaseException | str) -> bool:
+    text = str(error).casefold()
+    return "no audio was received" in text or "produced no audio" in text
+
+
 class EdgeEngine(TTSEngine):
     name = "edge"
     output_suffix = ".mp3"
@@ -85,6 +90,9 @@ class EdgeEngine(TTSEngine):
         self.gender = gender
         self._catalogue: list[dict[str, Any]] | None = None
         self._resolved: dict[str, str] = {}
+        # A voice that returns the service's explicit no-audio response is
+        # skipped for the rest of this build; other voices are tried per line.
+        self._failed_voices: dict[str, set[str]] = {}
 
     @property
     def languages(self) -> tuple[str, ...]:  # type: ignore[override]
@@ -199,34 +207,56 @@ class EdgeEngine(TTSEngine):
             raise VoiceUnavailable(f"edge-tts produced no audio for voice {voice}")
         return path
 
+    def _candidate_voices(self, language: str) -> list[str]:
+        """Order usable locale voices with the current winner first."""
+        code = language_code(language)
+        candidates = self.candidates(code)[:MAX_VOICES_TO_PROBE]
+        failed = self._failed_voices.setdefault(code, set())
+        available = [voice for voice in candidates if voice not in failed]
+        # If every candidate returned no audio for earlier text, permit one new
+        # round on the next retry; the service response can be transient.
+        if not available:
+            failed.clear()
+            available = candidates
+        resolved = self._resolved.get(code)
+        if resolved in available:
+            available.remove(resolved)
+            available.insert(0, resolved)
+        return available
+
     def _ensure_voice(self, language: str) -> str:
         """Probe voices once per language and cache the first one that speaks."""
-        if language in self._resolved:
-            return self._resolved[language]
+        code = language_code(language)
+        resolved = self._resolved.get(code)
+        if resolved and resolved not in self._failed_voices.get(code, set()):
+            return resolved
 
-        configured = self.pick_voice(language)
-        candidates = self.candidates(language)[:MAX_VOICES_TO_PROBE]
-        probe = PROBE_TEXT.get(language_code(language), PROBE_TEXT["en"])
+        configured = self.pick_voice(code)
+        candidates = self._candidate_voices(code)
+        probe = PROBE_TEXT.get(code, PROBE_TEXT["en"])
         errors: list[str] = []
 
         for voice in candidates:
             try:
                 self._render(probe, voice, "+0%", "+0Hz", self._probe_path(language))
-            except EngineUnavailable:
-                raise
             except VoiceUnavailable as exc:
+                self._failed_voices.setdefault(code, set()).add(voice)
                 errors.append(str(exc))
                 continue
+            except EngineUnavailable:
+                raise
             except Exception as exc:  # noqa: BLE001 - network vs voice failure
                 message = str(exc)
                 if _looks_like_network_error(message):
                     raise EngineUnavailable(
                         f"edge-tts cannot reach the speech service: {message}"
                     ) from exc
+                if _is_no_audio_error(exc):
+                    self._failed_voices.setdefault(code, set()).add(voice)
                 errors.append(f"{voice}: {message}")
                 continue
 
-            self._resolved[language] = voice
+            self._resolved[code] = voice
             if voice != configured:
                 log.warning(
                     "edge: configured voice %s is unavailable; using discovered voice %s",
@@ -256,20 +286,53 @@ class EdgeEngine(TTSEngine):
         profile: PacingProfile,
         reference: Path | None = None,
     ) -> Path:
-        voice = self._ensure_voice(language)
-        try:
-            return self._render(
-                text, voice,
-                normalise_rate(profile.edge_rate),
-                normalise_pitch(profile.edge_pitch),
-                Path(out_path),
-            )
-        except VoiceUnavailable:
-            raise
-        except EngineUnavailable:
-            raise
-        except Exception as exc:  # noqa: BLE001 - surfaced to the retry layer
-            raise EngineUnavailable(f"edge-tts failed for voice {voice}: {exc}") from exc
+        code = language_code(language)
+        original = self._ensure_voice(code)
+        candidates = self._candidate_voices(code)
+        failures: list[str] = []
+
+        for voice in candidates:
+            try:
+                rendered = self._render(
+                    text,
+                    voice,
+                    normalise_rate(profile.edge_rate),
+                    normalise_pitch(profile.edge_pitch),
+                    Path(out_path),
+                )
+            except Exception as exc:  # noqa: BLE001 - classify service failures
+                message = str(exc)
+                if _looks_like_network_error(message):
+                    raise EngineUnavailable(
+                        f"edge-tts cannot reach the speech service: {message}"
+                    ) from exc
+                if not _is_no_audio_error(exc):
+                    if isinstance(exc, EngineUnavailable):
+                        raise
+                    raise EngineUnavailable(
+                        f"edge-tts failed for voice {voice}: {message}"
+                    ) from exc
+
+                self._failed_voices.setdefault(code, set()).add(voice)
+                failures.append(f"{voice}: {message}")
+                log.warning(
+                    "edge: voice %s returned no audio for this line; trying another locale voice",
+                    voice,
+                )
+                continue
+
+            self._resolved[code] = voice
+            if voice != original:
+                log.warning("edge: switched to %s after %s returned no audio", voice, original)
+            return rendered
+
+        self._resolved.pop(code, None)
+        self._failed_voices.setdefault(code, set()).clear()
+        raise EngineUnavailable(
+            "edge-tts returned no audio for this sentence from all available "
+            f"{_LOCALE.get(code, code)} voices; rotating the next attempt. "
+            + "; ".join(failures[:MAX_VOICES_TO_PROBE])
+        )
 
     def describe(self) -> dict[str, object]:
         return {

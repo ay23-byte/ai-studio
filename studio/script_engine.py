@@ -104,7 +104,7 @@ def _post(model: str, prompt: str) -> str:
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.85, "maxOutputTokens": 4096},
         },
-        timeout=120,
+        timeout=min(120.0, max(10.0, float(config.GEMINI_REQUEST_TIMEOUT))),
     )
     if _is_model_unavailable(response.status_code, response.text or ""):
         raise ModelUnavailableError(
@@ -137,9 +137,9 @@ def _ask_gemini(prompt: str) -> str:
         try:
             return retry_call(
                 lambda m=model: _post(m, prompt),
-                attempts=3,
-                base_delay=4,
-                max_delay=30,
+                attempts=2,
+                base_delay=3,
+                max_delay=12,
                 give_up_on=(ModelUnavailableError,),
                 label=f"gemini[{model}]",
             )

@@ -63,6 +63,7 @@ def _load() -> dict[str, object]:
             "GEMINI_FALLBACK_MODELS",
             "gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash-lite,gemini-3.1-flash-lite",
         ),
+        "GEMINI_REQUEST_TIMEOUT": _number("GEMINI_REQUEST_TIMEOUT", 60),
         # --- visuals ------------------------------------------------------ #
         "PIXABAY_API_KEY": _env("PIXABAY_API_KEY"),
         "CF_ACCOUNT_ID": _env("CLOUDFLARE_ACCOUNT_ID"),

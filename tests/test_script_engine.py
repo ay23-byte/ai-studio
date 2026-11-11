@@ -59,6 +59,21 @@ def test_generate_shorts_success(monkeypatch):
     assert len(calls) == 1
 
 
+def test_gemini_request_timeout_is_bounded_and_configurable(monkeypatch):
+    seen = []
+    monkeypatch.setattr(config, "GEMINI_REQUEST_TIMEOUT", 999)
+    monkeypatch.setattr(
+        script_engine.requests,
+        "post",
+        lambda *a, **kwargs: seen.append(kwargs["timeout"]) or FakeResponse(
+            payload={"candidates": [{"content": {"parts": [{"text": "ok"}]}}]}
+        ),
+    )
+
+    assert script_engine._post("test-model", "prompt") == "ok"
+    assert seen == [120]
+
+
 def test_generate_retries_transient_http_errors(monkeypatch):
     statuses = [500, 503, 200]
     calls = []
