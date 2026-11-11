@@ -21,8 +21,8 @@ CATALOGUE = [
 ]
 
 
-def install_fake_edge(monkeypatch, *, dead=(), network_error=False, catalogue=CATALOGUE,
-                      catalogue_error=False):
+def install_fake_edge(monkeypatch, *, dead=(), dead_on_text=None, network_error=False,
+                      catalogue=CATALOGUE, catalogue_error=False):
     """Replace the edge_tts module with a deterministic fake."""
     module = types.ModuleType("edge_tts")
     calls: list[dict] = []
@@ -38,7 +38,7 @@ def install_fake_edge(monkeypatch, *, dead=(), network_error=False, catalogue=CA
                 raise ConnectionError(
                     "Cannot connect to host speech.platform.bing.com:443"
                 )
-            if self.voice in dead:
+            if self.voice in dead or self.text in (dead_on_text or {}).get(self.voice, set()):
                 raise RuntimeError(
                     "No audio was received. Please verify that your parameters are correct."
                 )
@@ -80,6 +80,51 @@ def test_resolved_voice_is_probed_only_once(tmp_path, temp_config, monkeypatch):
     assert after_first == 2  # dead configured voice + the working replacement
     assert len([c for c in calls if c["text"] == PROBE_TEXT["hi"]]) == after_first
     assert calls[-1]["voice"] == "hi-IN-AaravNeural"
+
+
+def test_mid_build_no_audio_rotates_voice_and_keeps_new_choice(tmp_path, temp_config, monkeypatch):
+    flaky_line = "यह वाक्य पहले वॉइस से ऑडियो नहीं देता।"
+    calls = install_fake_edge(
+        monkeypatch,
+        dead_on_text={"hi-IN-MadhurNeural": {flaky_line}},
+    )
+    engine = EdgeEngine()
+
+    engine.synth(flaky_line, tmp_path / "first.mp3",
+                 profile=get_profile("natural"), language="hi")
+    assert engine.describe()["resolved"]["hi"] == "hi-IN-AaravNeural"
+    failed_attempts = [c for c in calls if c["text"] == flaky_line]
+    assert [c["voice"] for c in failed_attempts] == [
+        "hi-IN-MadhurNeural", "hi-IN-AaravNeural"
+    ]
+
+    engine.synth("अगली पंक्ति भी बोलनी है।", tmp_path / "second.mp3",
+                 profile=get_profile("natural"), language="hi")
+    assert calls[-1]["voice"] == "hi-IN-AaravNeural"
+    assert len([c for c in calls if c["voice"] == "hi-IN-MadhurNeural"
+                and c["text"] != PROBE_TEXT["hi"]]) == 1
+
+
+def test_every_voice_no_audio_for_one_line_raises_retryable_engine_error(
+    tmp_path, temp_config, monkeypatch
+):
+    flaky_line = "यह किसी भी वॉइस से ऑडियो नहीं देता।"
+    calls = install_fake_edge(
+        monkeypatch,
+        dead_on_text={
+            "hi-IN-MadhurNeural": {flaky_line},
+            "hi-IN-AaravNeural": {flaky_line},
+            "hi-IN-AnanyaNeural": {flaky_line},
+        },
+    )
+    engine = EdgeEngine()
+
+    with pytest.raises(EngineUnavailable, match="all available hi-IN voices"):
+        engine.synth(flaky_line, tmp_path / "failed.mp3",
+                     profile=get_profile("natural"), language="hi")
+    assert [c["voice"] for c in calls if c["text"] == flaky_line] == [
+        "hi-IN-MadhurNeural", "hi-IN-AaravNeural", "hi-IN-AnanyaNeural"
+    ]
 
 
 def test_all_voices_dead_raises_voice_unavailable(tmp_path, temp_config, monkeypatch):
