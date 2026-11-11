@@ -10,10 +10,8 @@ from google.oauth2.credentials import Credentials
 
 from studio import config
 from studio.publishing.youtube import (
-    YOUTUBE_SCOPE,
     YouTubeAuthError,
     _creds,
-    _require_channel_read_access,
     upload,
     wait_processed,
 )
@@ -76,65 +74,47 @@ class _InsufficientScope(Exception):
         self.content = b'{"error":{"message":"Insufficient Permission"}}'
 
 
-def test_read_scope_is_checked_before_upload_and_names_required_scope():
-    class ChannelList:
-        def execute(self):
-            raise _InsufficientScope()
-
-    youtube = SimpleNamespace(
-        channels=lambda: SimpleNamespace(list=lambda **kwargs: ChannelList())
-    )
-    with pytest.raises(YouTubeAuthError) as caught:
-        _require_channel_read_access(youtube)
-    assert YOUTUBE_SCOPE in str(caught.value)
-    assert "No video was uploaded" in str(caught.value)
-
-
-def test_upload_preflights_read_scope_before_calling_insert(tmp_path, monkeypatch):
+def test_upload_does_not_require_read_scope_for_video_insert(tmp_path, monkeypatch):
     import studio.publishing.youtube as publishing
 
-    class VideoResource:
+    video_path = tmp_path / "short.mp4"
+    video_path.write_bytes(b"test video bytes")
+    inserted = []
+
+    class Request:
+        def next_chunk(self, **kwargs):
+            return None, {"id": "uploaded-video-id"}
+
+    class Videos:
         def insert(self, **kwargs):
-            raise AssertionError("upload insert must not run without read scope")
+            inserted.append(kwargs)
+            return Request()
 
-    class ChannelList:
-        def execute(self):
-            raise _InsufficientScope()
+    # There is intentionally no channels() or videos().list() method on this
+    # client: youtube.upload permission alone must be sufficient for insert.
+    client = SimpleNamespace(videos=lambda: Videos())
+    monkeypatch.setattr(publishing, "_youtube", lambda: client)
+    monkeypatch.setattr(publishing, "_publish_time", lambda: None)
 
-    youtube = SimpleNamespace(
-        channels=lambda: SimpleNamespace(list=lambda **kwargs: ChannelList()),
-        videos=lambda: VideoResource(),
-    )
-    monkeypatch.setattr(publishing, "_youtube", lambda: youtube)
-    with pytest.raises(YouTubeAuthError, match="No video was uploaded"):
-        upload(tmp_path / "not-opened.mp4", "title", "description", [])
+    assert upload(video_path, "title", "description", []) == "uploaded-video-id"
+    assert inserted[0]["body"]["status"]["privacyStatus"] == config.PRIVACY
 
 
-def test_processing_refresh_error_reports_uploaded_id_and_prevents_duplicate(monkeypatch):
+def test_processing_refresh_error_is_best_effort_after_upload(monkeypatch):
     monkeypatch.setattr(
         "studio.publishing.youtube._youtube",
         lambda: (_ for _ in ()).throw(YouTubeAuthError("refresh failure")),
     )
-    with pytest.raises(YouTubeAuthError) as caught:
-        wait_processed("already-uploaded-id", max_wait=1)
-    message = str(caught.value)
-    assert "already-uploaded-id" in message
-    assert "already saved" in message
-    assert "do not upload it again" in message
-    assert YOUTUBE_SCOPE in message
+
+    assert wait_processed("already-uploaded-id", max_wait=1) == "status_unavailable"
 
 
-def test_processing_scope_error_retains_video_id_and_blocks_reupload(monkeypatch):
+def test_processing_scope_error_is_best_effort_after_upload(monkeypatch):
     class VideoList:
         def execute(self):
             raise _InsufficientScope()
 
     youtube = SimpleNamespace(videos=lambda: SimpleNamespace(list=lambda **kwargs: VideoList()))
     monkeypatch.setattr("studio.publishing.youtube._youtube", lambda: youtube)
-    with pytest.raises(YouTubeAuthError) as caught:
-        wait_processed("already-uploaded-id", max_wait=1)
-    message = str(caught.value)
-    assert "already-uploaded-id" in message
-    assert "already saved" in message
-    assert "do not upload it again" in message
-    assert YOUTUBE_SCOPE in message
+
+    assert wait_processed("already-uploaded-id", max_wait=1) == "status_unavailable"

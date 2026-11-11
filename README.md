@@ -380,14 +380,12 @@ are the production builders. Browser-only instructions:
 ## 10. Publishing
 
 1. Create an OAuth client (Desktop) in Google Cloud, enable *YouTube Data API v3*.
-2. Authorise with the **full YouTube scope**
-   `https://www.googleapis.com/auth/youtube` (not only `youtube.upload`), then
-   store the refresh token. This app also reads channel/video processing status
-   and manages playlists/comments. A refresh token's granted scopes are fixed
-   when it is created; changing code or rerunning Actions cannot add scopes.
-   Re-consent for the same channel and OAuth client, then replace the
-   `YT_REFRESH_TOKEN` Actions secret. Keep the client ID/secret unless the OAuth
-   client itself changed.
+2. Authorise at minimum with `https://www.googleapis.com/auth/youtube.upload`
+   to upload videos. The broader `https://www.googleapis.com/auth/youtube` scope
+   also enables optional processing-status reads, playlist management and
+   comments. Those extras are best-effort; a read-scope failure after YouTube
+   accepts an upload no longer fails the job. OAuth grants cannot be broadened
+   by code; re-consent with the same client only if you want those extras.
 3. Put `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` in `.env` or
    repository secrets.
 4. `PRIVACY=private` plus `PUBLISH_AT_IST=19:00` schedules the premiere; leave
@@ -399,8 +397,9 @@ are the production builders. Browser-only instructions:
 `invalid_grant` is returned by Google's token endpoint before YouTube receives a
 video. The refresh token is revoked/expired, or it does not match the configured
 OAuth client; retrying the same token cannot repair it. Re-authorise the same
-YouTube channel with the same OAuth client and the
-`https://www.googleapis.com/auth/youtube` scope, then replace the repository's
+YouTube channel with the same OAuth client and at least the
+`https://www.googleapis.com/auth/youtube.upload` scope (full `youtube` scope is
+optional), then replace the repository's
 **Actions secret** `YT_REFRESH_TOKEN` under **Settings → Secrets and variables
 → Actions**. If the OAuth client was rotated, update `YT_CLIENT_ID` and
 `YT_CLIENT_SECRET` to the matching pair as well. For an External OAuth consent
@@ -408,12 +407,10 @@ screen left in **Testing**, Google refresh tokens expire after 7 days; publish
 the consent screen (or expect to re-authorise and rotate the secret).
 
 An `invalid_grant` occurs before YouTube receives the video, so that job remains
-queued. A separate scope failure while checking processing status can occur
-**after** YouTube accepted the upload; the uploader saves the returned video ID
-before polling and excludes it from future upload attempts. Verify that video in
-YouTube Studio—do not upload it again. New uploads now preflight channel-read
-permission before sending video bytes, so an upload-only grant is rejected
-safely before upload.
+queued. A separate read-scope failure while checking processing can happen
+**after** YouTube accepted an upload. The returned video ID is saved first; the
+status poll is optional, and the job is still reported as uploaded if that poll
+is unavailable. Verify the video in YouTube Studio and do not upload it again.
 
 ---
 
