@@ -190,24 +190,34 @@ def upload_latest() -> bool:
                                 contains_synthetic=True)
             update_video(row["id"], youtube_id=youtube_id, status="uploaded")
             state = wait_processed(youtube_id)
-            if state == "failed":
-                send(f"❌ YouTube processing failed for: {title}")
+            if state in {"failed", "rejected", "deleted"}:
+                send(f"❌ YouTube accepted the upload but processing ended as {state}: {title}")
                 return False
-            playlist = CATEGORY_PLAYLISTS.get(category, config.CHANNEL_NAME)
-            for step, action in (
-                ("playlist", lambda vid=youtube_id, pl=playlist: add_to_playlist(vid, pl)),
-                ("comment", lambda vid=youtube_id, text=seo["pinned_comment"]: post_comment(vid, text)),
-            ):
-                try:
-                    action()
-                except Exception as exc:  # noqa: BLE001
-                    log.warning("%s: %s", step, exc)
+
+            if state == "ok":
+                playlist = CATEGORY_PLAYLISTS.get(category, config.CHANNEL_NAME)
+                for step, action in (
+                    ("playlist", lambda vid=youtube_id, pl=playlist: add_to_playlist(vid, pl)),
+                    ("comment", lambda vid=youtube_id, text=seo["pinned_comment"]: post_comment(vid, text)),
+                ):
+                    try:
+                        action()
+                    except Exception as exc:  # noqa: BLE001
+                        log.warning("%s: %s", step, exc)
+            else:
+                log.warning(
+                    "upload accepted for job #%s (video %s); status=%s, "
+                    "skipping optional playlist/comment actions",
+                    row["id"], youtube_id, state,
+                )
+
             link = (
                 f"https://youtube.com/shorts/{youtube_id}"
                 if row.get("format") == "shorts"
                 else f"https://youtube.com/watch?v={youtube_id}"
             )
-            send(f"✅ Uploaded: {title}\n{link}\nTip: pin your comment in Studio.")
+            status_note = "" if state == "ok" else f" (processing status: {state})"
+            send(f"✅ Uploaded{status_note}: {title}\n{link}")
             print(f"Uploaded: {link}")
             return True
         except YouTubeAuthError as exc:

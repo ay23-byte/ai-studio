@@ -72,17 +72,16 @@ Secrets (never printed):
 
 If an upload reports Google OAuth `invalid_grant`, the stored refresh token is
 revoked/expired or mismatched with the OAuth client. Re-authorise the same
-YouTube account with the same client and full scope
-`https://www.googleapis.com/auth/youtube` (upload-only scope cannot read the
-processing status); then replace the `YT_REFRESH_TOKEN` Actions secret. Keep the
-client ID/secret unless the OAuth client itself changed. Google expires refresh
-tokens after 7 days when an External OAuth consent screen remains in Testing;
-publish the consent screen to avoid
-that testing-mode expiry. An `invalid_grant` fails before upload and leaves the
-job queued. A missing read scope discovered after upload means YouTube already
-accepted the video; its ID is saved and it must not be uploaded again. New runs
-preflight read permission before sending video bytes. See
-[Publishing](../README.md#fixing-invalid_grant-during-upload).
+YouTube account with the same client and at least
+`https://www.googleapis.com/auth/youtube.upload`, then replace the
+`YT_REFRESH_TOKEN` Actions secret. Keep the client ID/secret unless the OAuth
+client itself changed. Google expires refresh tokens after 7 days when an
+External OAuth consent screen remains in Testing; publish the consent screen to
+avoid that testing-mode expiry. `youtube.upload` is sufficient for uploading;
+full `https://www.googleapis.com/auth/youtube` enables optional status checks,
+playlists and comments. A missing read scope after upload no longer fails the
+job: the video ID is saved, the status poll is skipped, and the upload is not
+retried. See [Publishing](../README.md#fixing-invalid_grant-during-upload).
 
 Variables (visible, handy for switching behaviour):
 

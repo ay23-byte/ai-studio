@@ -103,10 +103,9 @@ def test_invalid_youtube_oauth_fails_cleanly_without_marking_video_uploaded(
     assert any("replace YT_REFRESH_TOKEN" in message for message in notifications)
 
 
-def test_post_upload_scope_error_keeps_id_and_never_retries_upload(tmp_path, monkeypatch):
+def test_post_upload_scope_error_is_success_and_never_retries_upload(tmp_path, monkeypatch):
     import studio.publishing as publishing
     from studio.db import get_video
-    from studio.publishing import YouTubeAuthError
 
     job, video = _built_video(tmp_path)
     monkeypatch.setattr(
@@ -126,23 +125,25 @@ def test_post_upload_scope_error_keeps_id_and_never_retries_upload(tmp_path, mon
         return "already-uploaded-id"
 
     monkeypatch.setattr(publishing, "upload", fake_upload)
+    monkeypatch.setattr(publishing, "wait_processed", lambda video_id: "status_unavailable")
     monkeypatch.setattr(
         publishing,
-        "wait_processed",
-        lambda video_id: (_ for _ in ()).throw(
-            YouTubeAuthError(
-                f"video id {video_id} is already saved; do not upload it again"
-            )
-        ),
+        "add_to_playlist",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("skip optional playlist call")),
+    )
+    monkeypatch.setattr(
+        publishing,
+        "post_comment",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("skip optional comment call")),
     )
     notifications = []
     monkeypatch.setattr(daily, "send", lambda *a, **k: notifications.append(a[0]))
 
-    assert daily.upload_latest() is False
+    assert daily.upload_latest() is True
     saved = get_video(job)
     assert saved["youtube_id"] == "already-uploaded-id"
     assert saved["status"] == "uploaded"
-    assert any("do not upload it again" in message for message in notifications)
+    assert any("processing status: status_unavailable" in message for message in notifications)
     assert daily.upload_latest() is False
     assert len(uploads) == 1
 
