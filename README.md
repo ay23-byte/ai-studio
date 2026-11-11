@@ -380,11 +380,14 @@ are the production builders. Browser-only instructions:
 ## 10. Publishing
 
 1. Create an OAuth client (Desktop) in Google Cloud, enable *YouTube Data API v3*.
-2. Authorise with the full scope `https://www.googleapis.com/auth/youtube`
-   (`google-auth-oauthlib`'s `InstalledAppFlow`), then store the refresh token.
-   Upload-only scope is insufficient: this app also reads channel/video processing
-   status and manages playlists/comments. An existing refresh token cannot gain
-   scopes by itself; repeat consent and replace the refresh-token secret.
+2. Authorise with the **full YouTube scope**
+   `https://www.googleapis.com/auth/youtube` (not only `youtube.upload`), then
+   store the refresh token. This app also reads channel/video processing status
+   and manages playlists/comments. A refresh token's granted scopes are fixed
+   when it is created; changing code or rerunning Actions cannot add scopes.
+   Re-consent for the same channel and OAuth client, then replace the
+   `YT_REFRESH_TOKEN` Actions secret. Keep the client ID/secret unless the OAuth
+   client itself changed.
 3. Put `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` in `.env` or
    repository secrets.
 4. `PRIVACY=private` plus `PUBLISH_AT_IST=19:00` schedules the premiere; leave

@@ -242,7 +242,8 @@ def wait_processed(video_id: str, max_wait: int = 600) -> str:
                     "already saved; do not upload it again. Re-authorise the intended "
                     f"channel with scope {YOUTUBE_SCOPE}, then replace the "
                     "YT_REFRESH_TOKEN GitHub Actions secret. Keep the existing "
-                    "YT_CLIENT_ID and YT_CLIENT_SECRET unless the OAuth client changed."
+                    "YT_CLIENT_ID and YT_CLIENT_SECRET unless the OAuth client changed. "
+                    "Verify the existing video in YouTube Studio."
                 ) from exc
             raise
         items = listing.get("items", [])

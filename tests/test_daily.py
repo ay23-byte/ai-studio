@@ -135,10 +135,14 @@ def test_post_upload_scope_error_keeps_id_and_never_retries_upload(tmp_path, mon
             )
         ),
     )
-    monkeypatch.setattr(daily, "send", lambda *a, **k: None)
+    notifications = []
+    monkeypatch.setattr(daily, "send", lambda *a, **k: notifications.append(a[0]))
 
     assert daily.upload_latest() is False
-    assert get_video(job)["youtube_id"] == "already-uploaded-id"
+    saved = get_video(job)
+    assert saved["youtube_id"] == "already-uploaded-id"
+    assert saved["status"] == "uploaded"
+    assert any("do not upload it again" in message for message in notifications)
     assert daily.upload_latest() is False
     assert len(uploads) == 1
 

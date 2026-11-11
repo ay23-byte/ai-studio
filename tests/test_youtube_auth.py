@@ -82,14 +82,10 @@ def test_read_scope_is_checked_before_upload_and_names_required_scope():
             raise _InsufficientScope()
 
     youtube = SimpleNamespace(
-        channels=lambda: SimpleNamespace(
-            list=lambda **kwargs: ChannelList(),
-        )
+        channels=lambda: SimpleNamespace(list=lambda **kwargs: ChannelList())
     )
-
     with pytest.raises(YouTubeAuthError) as caught:
         _require_channel_read_access(youtube)
-
     assert YOUTUBE_SCOPE in str(caught.value)
     assert "No video was uploaded" in str(caught.value)
 
@@ -106,13 +102,10 @@ def test_upload_preflights_read_scope_before_calling_insert(tmp_path, monkeypatc
             raise _InsufficientScope()
 
     youtube = SimpleNamespace(
-        channels=lambda: SimpleNamespace(
-            list=lambda **kwargs: ChannelList(),
-        ),
+        channels=lambda: SimpleNamespace(list=lambda **kwargs: ChannelList()),
         videos=lambda: VideoResource(),
     )
     monkeypatch.setattr(publishing, "_youtube", lambda: youtube)
-
     with pytest.raises(YouTubeAuthError, match="No video was uploaded"):
         upload(tmp_path / "not-opened.mp4", "title", "description", [])
 
@@ -122,10 +115,8 @@ def test_processing_refresh_error_reports_uploaded_id_and_prevents_duplicate(mon
         "studio.publishing.youtube._youtube",
         lambda: (_ for _ in ()).throw(YouTubeAuthError("refresh failure")),
     )
-
     with pytest.raises(YouTubeAuthError) as caught:
         wait_processed("already-uploaded-id", max_wait=1)
-
     message = str(caught.value)
     assert "already-uploaded-id" in message
     assert "already saved" in message
@@ -138,16 +129,10 @@ def test_processing_scope_error_retains_video_id_and_blocks_reupload(monkeypatch
         def execute(self):
             raise _InsufficientScope()
 
-    youtube = SimpleNamespace(
-        videos=lambda: SimpleNamespace(
-            list=lambda **kwargs: VideoList(),
-        )
-    )
+    youtube = SimpleNamespace(videos=lambda: SimpleNamespace(list=lambda **kwargs: VideoList()))
     monkeypatch.setattr("studio.publishing.youtube._youtube", lambda: youtube)
-
     with pytest.raises(YouTubeAuthError) as caught:
         wait_processed("already-uploaded-id", max_wait=1)
-
     message = str(caught.value)
     assert "already-uploaded-id" in message
     assert "already saved" in message
