@@ -231,11 +231,11 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt -c constraints.txt
+      # Use imageio-ffmpeg's static binary instead of apt here: the live TTS
+      # smoke test only needs ffmpeg conversion, and apt mirrors have stalled
+      # this job for the full 20-minute timeout.
+      - name: Install dependencies (includes static ffmpeg)
+        run: pip install -r requirements-dev.txt -c constraints.txt
 
       - name: edge-tts Devanagari sample (the path that failed in make-shorts)
         continue-on-error: true
